@@ -2,7 +2,7 @@ import argparse
 import os
 from pathlib import Path
 
-from lib.base import init_output_path, get_image_paths, get_annoation_data_fpath, get_subdir_paths
+from lib.base import init_output_path, get_image_paths, get_distorted_image_paths, get_annoation_data_fpath, get_subdir_paths
 from lib.gen_rotated_coco_180 import gen_180_rotated_coco_annotation_data, gen_180_rotated_images
 
 '''
@@ -42,8 +42,15 @@ def rotate():
         # rotate data
         gen_180_rotated_coco_annotation_data(coco_annotation_data_fpath, output_path=r_annotation_data_path, make_img_id_unique=make_img_id_unique)
         gen_180_rotated_images(all_img_paths, output_path=r_images_output_path)
+
+        # also rotate distorted image data if exists
+        if os.path.exists(str(Path(coco_path) / 'distorted_images')):
+            all_img_paths = get_distorted_image_paths(coco_path)
+            r_images_output_path = str(Path(output_path) / Path(recording_path).name / 'output' / 'distorted_images')
+            init_output_path(r_images_output_path)
+            gen_180_rotated_images(all_img_paths, output_path=r_images_output_path)
     
-    print('Done rotating COCO data format data recordings (%s)' % output_path)
+    print('Done rotating COCO data format data recordings (%s)' % (output_path + '/N' + '/output'))
 
 
 if __name__ == '__main__':

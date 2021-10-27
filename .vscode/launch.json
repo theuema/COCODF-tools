@@ -5,6 +5,56 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: add-rotation-matrix",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/calc_rotation_matrix_coco_df.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--annotation-data-path",
+                "../OptiTrack_recordings/1/output/annotations/data_rotM.json",
+                "--add-rotation-matrix"
+            ]
+        },
+        {
+            "name": "Python: process-rosbag",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/process_rosbag.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--image-bag-path",
+                "../OptiTrack_recordings/1/camera_animals_full_closest_sync.bag",
+                "--image-bag-topic",
+                "/synchronizer/rgb_undistort",
+                "--output-path",
+                "../OptiTrack_recordings_e_1",
+                "--camera-yaml",
+                "intrinsics/calib_file_fullres_drop.yaml",
+                "--undistort"
+            ]
+        },
+        {
+            "name": "Python: process-rosbag-multrec",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/process_rosbag_multrec.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--recordings-path",
+                "../_backup_OptiTrack_recordings/OptiTrack_recordings",
+                "--image-bag-name",
+                "camera_animals_full_closest_sync.bag",
+                "--image-bag-topic",
+                "/synchronizer/rgb_undistort",
+                "--output-path",
+                "../OptiTrack_recordings",
+                "--camera-yaml",
+                "intrinsics/calib_file_fullres_drop.yaml",
+                "--undistort"
+            ]
+        },
+        {
             "name": "Python: rotate-180",
             "type": "python",
             "request": "launch",

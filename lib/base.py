@@ -6,6 +6,10 @@ import json
 import random
 import math
 import numpy as np
+import yaml
+import rosbag
+from cv_bridge import CvBridge
+from copy import deepcopy
 
 from glob import glob
 
@@ -113,6 +117,10 @@ def get_image_paths(coco_dir):
     # return a list of all image paths in a given directory
     return sorted(glob(os.path.join(coco_dir, 'images/*.png')))
 
+def get_distorted_image_paths(coco_dir):
+    # return a list of all distorted image paths in a given directory
+    return sorted(glob(os.path.join(coco_dir, 'distorted_images/*.png')))
+
 def get_subdir_paths(dir):
     # return a list of all subdir paths of a given directory
     return sorted(glob(os.path.join(dir, '*/')))
@@ -164,6 +172,15 @@ def load_custom_labels(fpath):
         labels = {int(k): v for line in f for (k, v) in [line.strip().split(None, 1)]}
     return labels
 
+def load_camera_intrinsics(yaml_fpath):
+    with open(yaml_fpath) as f:
+        camera_intrinsics = yaml.load(f, Loader=yaml.FullLoader)
+        camera_matrix = np.array(camera_intrinsics['camera_matrix']['data']).reshape(3, 3)
+        dist_coefficients = np.array([camera_intrinsics["distortion_coefficients"]["data"]])
+        img_size = (camera_intrinsics["image_width"], camera_intrinsics["image_height"])
+
+    return {'camera_matrix': camera_matrix, 'dist_coefficients': dist_coefficients, 'img_size': img_size}
+
 def get_id_img_path(img_id: int, all_img_paths: list):
     # get image path from image ID (img_id must be checked previously for out of bounds)
     # TODO: works only if 'image_id' corresponds to a sorted list of image paths (see: get_image_paths(dir))
@@ -178,3 +195,77 @@ def get_id_img_annotations(img_id: int, coco_annotation_data):
     # get all annotations (several or 1 object(s) in an image) for image ID
     return [annotation for annotation in coco_annotation_data['annotations'] 
             if annotation['image_id'] == img_id]
+
+def extract_rosbag_images(image_bag_fpath: str, image_bag_topic: str, output_path: str, undistort: bool, intrinsics: dict):
+    # extract images from rosbag/topic, save to a given path and optionally undistort the image given camera intrinsics
+    
+    if undistort:
+        mapx, mapy = \
+            cv2.initUndistortRectifyMap(intrinsics['camera_matrix'], intrinsics['dist_coefficients'], None, 
+                                        intrinsics['camera_matrix'], intrinsics['img_size'], 5)
+    
+    bag = rosbag.Bag(image_bag_fpath, 'r')
+    bridge = CvBridge()
+    lossless_compression_factor = 3 #9
+
+    print('Start extracting images from ROSbag ... (%s)' % image_bag_fpath)
+    messages = bag.read_messages(topics=[image_bag_topic])
+    for i, (topic, msg, ts) in enumerate(messages):
+        img = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+        
+        if undistort:
+            img = cv2.remap(img, mapx, mapy, cv2.INTER_LINEAR)
+        
+        save_path = os.path.join(output_path, '%06i.png' % (i+1))
+        cv2.imwrite(save_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR),
+                    [cv2.IMWRITE_PNG_COMPRESSION, lossless_compression_factor])
+    
+    print('Done extracting images from ROSbag to `output_path` (%s)' % output_path)
+
+    bag.close()
+
+def quat2rot(q): # from [q0, q1, q2, q3] to rotation matrix [[r00, r01, r02],[r10, r11, r12],[r20, r21, r22]]
+    # Covert a quaternion into a full three-dimensional rotation matrix.
+    
+    # Extract the values from Q
+    q0 = q[0]
+    q1 = q[1]
+    q2 = q[2]
+    q3 = q[3]
+
+    # First row of the rotation matrix
+    r00 = 2 * (q0 * q0 + q1 * q1) - 1
+    r01 = 2 * (q1 * q2 - q0 * q3)
+    r02 = 2 * (q1 * q3 + q0 * q2)
+
+    # Second row of the rotation matrix
+    r10 = 2 * (q1 * q2 + q0 * q3)
+    r11 = 2 * (q0 * q0 + q2 * q2) - 1
+    r12 = 2 * (q2 * q3 - q0 * q1)
+
+    # Third row of the rotation matrix
+    r20 = 2 * (q1 * q3 - q0 * q2)
+    r21 = 2 * (q2 * q3 + q0 * q1)
+    r22 = 2 * (q0 * q0 + q3 * q3) - 1
+
+    # 3x3 rotation matrix
+    rot_matrix = [[r00, r01, r02],
+                  [r10, r11, r12],
+                  [r20, r21, r22]]
+
+    return rot_matrix
+
+def add_rmatrix(coco_annotation_data: dict):
+    # calculates the rotation matrix from `coco_annotation_data` quaterions and returns new annotation data containing both, quaternions and rotation matrix
+    coco_annotation_data_rotM = deepcopy(coco_annotation_data)
+
+    for i, annotation in enumerate(coco_annotation_data['annotations']):
+        object_pose_rmatrix = quat2rot(annotation['object_pose']['quaternion'])
+        camera_pose_rmatrix = quat2rot(annotation['camera_pose']['quaternion'])
+        relative_pose_rmatrix = quat2rot(annotation['relative_pose']['quaternion'])
+        
+        coco_annotation_data_rotM['annotations'][i]['object_pose']['rotation'] = object_pose_rmatrix
+        coco_annotation_data_rotM['annotations'][i]['camera_pose']['rotation'] = camera_pose_rmatrix
+        coco_annotation_data_rotM['annotations'][i]['relative_pose']['rotation'] = relative_pose_rmatrix
+
+    return coco_annotation_data_rotM

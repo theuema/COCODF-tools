@@ -2,6 +2,7 @@
 
 Tools to plot bounding boxes from COCO data format annotation data and perform object detection on images
 
+***
 ## Files
 ***
 
@@ -98,8 +99,8 @@ Tools to plot bounding boxes from COCO data format annotation data and perform o
 - **Info using this script:** There is no need to manually pre-annotate and detect all the data with their corresponding scripts `plot_annotations_coco_multrec.py` and `detect_coco_multrec.py`
     - `compare_plot_annotations_coco_scaledyolov4_multrec.py` combines all process steps and annotates and/or detects if needed given its `image_ids`
 
-## Setup
 ***
+## Setup
 
 ### Docker *(recommended)*
 
