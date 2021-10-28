@@ -5,14 +5,27 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: add-rotation-matrix",
+            "name": "Python: store-rmatrix-json",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/calc_rotation_matrix_coco_df.py",
+            "program": "${workspaceFolder}/store_rotation_matrix_annotation_data.py",
             "console": "integratedTerminal",
             "args": [
                 "--annotation-data-path",
-                "../OptiTrack_recordings/1/output/annotations/data_rotM.json",
+                "../OptiTrack_recordings/1/output/annotations/data.json"
+            ]
+        },
+        {
+            "name": "Python: store-rmatrix-json-multrec",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/store_rotation_matrix_annotation_data_multrec.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--recordings-path",
+                "../OptiTrack_recordings_r",
+                "--annotation-json-name",
+                "data.json",
                 "--add-rotation-matrix"
             ]
         },

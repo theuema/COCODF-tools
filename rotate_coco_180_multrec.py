@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 from pathlib import Path
 
 from lib.base import init_output_path, get_image_paths, get_distorted_image_paths, get_annoation_data_fpath, get_subdir_paths
@@ -12,6 +13,7 @@ from lib.gen_rotated_coco_180 import gen_180_rotated_coco_annotation_data, gen_1
             ./recordings_path/1/output/images/*.png
         ./recordings_path/1/output/annotations/
             ./recordings_path/1/output/annotations/data.json
+            
     :Rotates the bounding boxes for all images as well as the corresponding annotation/data.json: and stores the new rotated dataset to `output_path`
 '''
 def rotate():
@@ -22,7 +24,8 @@ def rotate():
     # get all recording paths
     recording_paths = get_subdir_paths(recordings_path)
     if not len(recording_paths):
-        print('Error: No recording directories found (%s)' % recording_paths)
+        print('Error: No recording directories found (%s)' % recordings_path)
+        sys.exit(1)
 
     # rotate recording wise
     for recording_path in recording_paths: 

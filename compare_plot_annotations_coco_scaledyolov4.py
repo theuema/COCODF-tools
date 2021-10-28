@@ -43,7 +43,7 @@ def plot_compare():
     # init detect condition
     detect_images = not os.path.exists(get_yolo_data_fpath(coco_path)) # detect and save if no annotation data from a previous detection exists
 
-    try: # check detect status
+    try: # detect status check
         if image_ids is None and detect_images:
             raise AttributeError('No detected images found. Missing `--image_ids` argument to perform object detection.')
         if weights is None and detect_images:
@@ -74,7 +74,7 @@ def plot_compare():
         
         # load model
         model = attempt_load(weights, map_location=device)  # load FP32 model
-        img_size = check_img_size(img_size, s=model.stride.max())  # check img_size
+        img_size = check_img_size(img_size, s=model.stride.max())  # img_size check
         if half:
             model.half()  # to FP16
 
@@ -132,14 +132,14 @@ def plot_compare():
     # get yolo detected image_ids
     image_ids = [image['id'] for image in yolo_annotation_data['images']]
 
-    # check if detected image_ids images are a subset of annotated images, otherwise plot and annotate images for image_ids
+    # detected image_ids images are a subset of annotated images, otherwise plot and annotate images for image_ids check
     annotated_img_path_names = [Path(path).name for path in sorted(glob(os.path.join(annotated_images_output_path, '*.png')))]
     image_ids_path_names = [Path(path).name for path in get_id_img_paths(image_ids, all_img_paths)]
     plot_annotation = not set(image_ids_path_names).issubset(annotated_img_path_names)
 
     # plot annotator annotations to images and save image if needed
     if plot_annotation:
-        try: # check labels path
+        try: # labels path check
             if labels_fpath is None:
                 raise AttributeError('Data needs to be annotated before comparison. Therefore annotator labels are required. Please provide `--labels_path` and `category-id-is-line` (if necessary) and restart the script.')
         except Exception as e:
@@ -250,7 +250,7 @@ if __name__ == '__main__':
                         help='''
                         ID list of images used for object detection and plotting of annotations (e.g., --image_ids 2 4 8 16 32).
                         Detect objects in a number of randomly selected images (e.g., --image_ids random 5).
-                        If not passed as an argument all images are detected
+                        If not passed as an argument all images are detected (assumes consecutive numbering starting with ID 1)
                         ''')
     parser.add_argument('--show-yolo', action='store_true', help='show `yolo` as additional label near plotted bounding box')
     parser.add_argument('--weights', nargs='+', type=str, help='model.pt path(s)')

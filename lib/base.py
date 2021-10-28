@@ -224,7 +224,7 @@ def extract_rosbag_images(image_bag_fpath: str, image_bag_topic: str, output_pat
 
     bag.close()
 
-def quat2rot(q): # from [q0, q1, q2, q3] to rotation matrix [[r00, r01, r02],[r10, r11, r12],[r20, r21, r22]]
+def quat2rot(q): # from [c, xs, ys, zs] to rotation matrix [[r00, r01, r02],[r10, r11, r12],[r20, r21, r22]]
     # Covert a quaternion into a full three-dimensional rotation matrix.
     
     # Extract the values from Q
@@ -255,17 +255,33 @@ def quat2rot(q): # from [q0, q1, q2, q3] to rotation matrix [[r00, r01, r02],[r1
 
     return rot_matrix
 
-def add_rmatrix(coco_annotation_data: dict):
+def calc_add_rmatrix(coco_annotation_data: dict):
     # calculates the rotation matrix from `coco_annotation_data` quaterions and returns new annotation data containing both, quaternions and rotation matrix
-    coco_annotation_data_rotM = deepcopy(coco_annotation_data)
+    rmatrix_coco_annotation_data = deepcopy(coco_annotation_data)
 
     for i, annotation in enumerate(coco_annotation_data['annotations']):
         object_pose_rmatrix = quat2rot(annotation['object_pose']['quaternion'])
         camera_pose_rmatrix = quat2rot(annotation['camera_pose']['quaternion'])
         relative_pose_rmatrix = quat2rot(annotation['relative_pose']['quaternion'])
         
-        coco_annotation_data_rotM['annotations'][i]['object_pose']['rotation'] = object_pose_rmatrix
-        coco_annotation_data_rotM['annotations'][i]['camera_pose']['rotation'] = camera_pose_rmatrix
-        coco_annotation_data_rotM['annotations'][i]['relative_pose']['rotation'] = relative_pose_rmatrix
+        rmatrix_annotation = rmatrix_coco_annotation_data['annotations'][i]
+        try: # add the rotation matrix to the correct annotation check
+            if rmatrix_annotation != annotation:
+                raise ValueError('Annotation data values not identical (index problem). Not adding the wrong rotation matrix. Abort.')
+        except Exception as e:
+                print('Exception: {}'.format(str(e)), file=sys.stderr)
+                print('Annotation from file:')
+                print(annotation)
+                print('Annotation from bad index:')
+                print(rmatrix_annotation)
+                sys.exit(1)
 
-    return coco_annotation_data_rotM
+        rmatrix_annotation['object_pose']['rotation'] = object_pose_rmatrix
+        rmatrix_annotation['camera_pose']['rotation'] = camera_pose_rmatrix
+        rmatrix_annotation['relative_pose']['rotation'] = relative_pose_rmatrix
+
+    return rmatrix_coco_annotation_data
+
+def get_image_annotation_object_center(bbox: list): # from [x2, y2, w, h] to (cx, cy)
+    # returns the center point of the object from the associated bounding box (image coordinates top left 0/0)
+    return (bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2)

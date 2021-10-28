@@ -23,7 +23,7 @@ def plot():
     coco_path, output_path, show_ids, image_ids, segmentation, annotator, labels_fpath, category_id_is_line = \
     opt.coco_path, opt.output_path, opt.show_ids, opt.image_ids, opt.segmentation, opt.annotator, opt.labels_path, opt.category_id_is_line
 
-    try: # check save and show arguments
+    try: # save and show arguments check
         if image_ids is None and show_ids is None:
             raise AttributeError('Nothing to process. Missing `--image_ids` and/or `--show-ids` argument.')
         if output_path is None and image_ids is not None:
@@ -99,7 +99,7 @@ if __name__ == '__main__':
                         help='''
                         ID list of images that are annotated and saved (e.g., `--image_ids 2 4 8 16 32`);
                         process a number of randomly selected images (e.g., `--image_ids random 5`);
-                        if not passed as an argument all images are processed
+                        if not passed as an argument all images are processed (assumes consecutive numbering starting with ID 1)
                         ''')
     parser.add_argument('--annotator', type=str,
                         help='''

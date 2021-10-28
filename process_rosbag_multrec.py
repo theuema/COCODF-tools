@@ -6,7 +6,13 @@ from pathlib import Path
 from lib.base import init_output_path, extract_rosbag_images, load_camera_intrinsics, get_subdir_paths
 
 '''
-    :Extracts images from a given ROSbag: specified by `--image-bag-path` and `--image-bag-topic`
+    Function works with the following filestructure: 
+    ./recordings_path
+        ./recordings_path/N/
+            ./recordings_path/1/image-bag-path.bag
+        ...
+
+    :Extracts images from a given ROSbag: specified by `--recordings_path`, `--image-bag-name` and `--image-bag-topic`
     :Performs undistort of images using camera intrinsics: specified by `--camera-yaml` and `--perform-undistort`
     :Saves extracted images to an output directory: specified by `--output-dir`
 '''
@@ -17,10 +23,10 @@ def process():
     # get all recording paths
     recording_paths = get_subdir_paths(recordings_path)
     if not len(recording_paths):
-        print('Error: No recording directories found (%s)' % recording_paths)
+        print('Error: No recording directories found (%s)' % recordings_path)
+        sys.exit(1)
 
-
-    try: # check undistort arguments
+    try: # undistort arguments check
         if undistort and camera_yaml is None:
             raise AttributeError('Need camera intrinsics `--camera-yaml` to `--undistort` images.')
     except Exception as e:
@@ -59,17 +65,17 @@ if __name__ == '__main__':
                         help='''
                         path to the dataset directory containing multiple recording folders 1/ ... N/
                         e.g., `--recordings-path ../OptiTrack_recordings` where multiple recording folders exist: 
-                        OptiTrack_recordings/1/*.bag ... OptiTrack_recordings/N/*.bag
-                        containing the bag file specified by `--image-bag-name`
+                        OptiTrack_recordings/1/image-bag-name.bag ... OptiTrack_recordings/N/image-bag-name.bag
+                        bag file name specified by `--image-bag-name`
                         ''')
-    parser.add_argument('--image-bag-name', required=True, help='ROSbag filename (e.g., `image_recording.bag` or just `image_recording`) containing recorded images')
-    parser.add_argument('--image-bag-topic', required=True, help='Topic name in ROSbag containing recorded images')
+    parser.add_argument('--image-bag-name', type=str, required=True, help='ROSbag filename (e.g., `image_recording.bag` or just `image_recording`) containing recorded images')
+    parser.add_argument('--image-bag-topic', type=str, required=True, help='Topic name in ROSbag containing recorded images')
     #parser.add_argument('--extract-images', action='store_true', help='Extract images')
     parser.add_argument('--undistort', action='store_true', help='Use camera intrisics to undistort extracted images')
     #parser.add_argument('--object-path', type=str, help='Path to the ROSbag containing the objects' poses')
     parser.add_argument('--camera-yaml', type=str, help='Path to the yaml-file containing the camera intrinsics')
     #parser.add_argument('--rb-cam', type=str, help='Path to the yaml-file containing the camera Rigid Body Transformaiton matrix')
-    parser.add_argument('--output-path', required=True, help='Dataset output folder for extracted images (creates folder `images` or `distorted_images`)')
+    parser.add_argument('--output-path', type=str, required=True, help='Dataset output folder for extracted images (creates folder `images` or `distorted_images`)')
 
     opt = parser.parse_args()
     print(opt)

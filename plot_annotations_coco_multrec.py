@@ -14,6 +14,7 @@ from lib.base import (init_output_path, get_image_paths, get_img_ids_from_argume
             ./recordings_path/1/coco_output/images/*.png
         ./recordings_path/1/coco_output/annotations/
             ./recordings_path/1/coco_output/annotations/data.json
+            
     :Plots bounding boxes from annotation/image pairs: 
         specified by `--image_ids` and saves the results to 
         a new folder `annotated_images/` in the corresponding ./recordings_path/N/output/ folder
@@ -26,7 +27,8 @@ def plot():
     # get all recording paths
     recording_paths = get_subdir_paths(recordings_path)
     if not len(recording_paths):
-        print('Error: No recording directories found (%s)' % recording_paths)
+        print('Error: No recording directories found (%s)' % recordings_path)
+        sys.exit(1)
 
     # get annotation labels
     labels = load_labels(labels_fpath) if category_id_is_line else load_custom_labels(labels_fpath)
@@ -79,7 +81,7 @@ if __name__ == '__main__':
                         help='''
                         ID list of images that are annotated and saved - same for every recording (e.g., `--image_ids 2 4 8 16 32`);
                         process a number of randomly selected images - different for every recording (e.g., `--image_ids random 5`);
-                        if not passed as an argument all images are processed
+                        if not passed as an argument all images are processed (assumes consecutive numbering starting with ID 1)
                         ''')
     parser.add_argument('--annotator', type=str,
                         help='''

@@ -34,7 +34,7 @@ def detect():
     output_path, coco_path, weights, save_txt, img_size, show_ids, image_ids, save_coco = \
         opt.output_path, opt.coco_path, opt.weights, opt.save_txt, opt.img_size, opt.show_ids, opt.image_ids, opt.save_coco
 
-    try: # check save and show arguments
+    try: # save and show arguments check
         if image_ids is None and show_ids is None:
             raise AttributeError('Nothing to process. Missing `--image_ids` and/or `--show-ids` argument.')
         if output_path is None and image_ids is not None:
@@ -68,7 +68,7 @@ def detect():
     
     # load model
     model = attempt_load(weights, map_location=device)  # load FP32 model
-    img_size = check_img_size(img_size, s=model.stride.max())  # check img_size
+    img_size = check_img_size(img_size, s=model.stride.max())  # img_size check
     if half:
         model.half()  # to FP16
 
@@ -145,7 +145,7 @@ if __name__ == '__main__':
                     help='''
                     ID list of images used for object detection (e.g., --image_ids 2 4 8 16 32).
                     Detect objects in a number of randomly selected images (e.g., --image_ids random 5).
-                    If not passed as an argument all images are detected
+                    If not passed as an argument all images are detected (assumes consecutive numbering starting with ID 1)
                     ''')
     parser.add_argument('--show-yolo', action='store_true', help='show `yolo` as additional label near generated bounding box')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')

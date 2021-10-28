@@ -25,6 +25,7 @@ from lib.base import (init_output_path, get_image_paths, get_img_ids_from_argume
             ./recordings_path/1/coco_output/images/*.png
         ./recordings_path/1/coco_output/annotations/
             ./recordings_path/1/coco_output/annotations/data.json
+            
     :Runs object detection on images and plots resulting bounding boxes to images: specified by `--image_ids` 
         and saves the results to a new folder `detected_images/` in the corresponding ./recordings_path/N/output/ folder
     :YOLO implementation taken from: https://github.com/WongKinYiu/ScaledYOLOv4
@@ -36,7 +37,8 @@ def detect():
     # get all recording paths
     recording_paths = get_subdir_paths(recordings_path)
     if not len(recording_paths):
-        print('Error: No recording directories found (%s)' % recording_paths)
+        print('Error: No recording directories found (%s)' % recordings_path)
+        sys.exit(1)
 
     # --- ScaledYolov4
     # initialize
@@ -45,7 +47,7 @@ def detect():
     
     # load model
     model = attempt_load(weights, map_location=device)  # load FP32 model
-    img_size = check_img_size(img_size, s=model.stride.max())  # check img_size
+    img_size = check_img_size(img_size, s=model.stride.max())  # img_size check
     if half:
         model.half()  # to FP16
 
@@ -127,7 +129,7 @@ if __name__ == '__main__':
                     help='''
                     ID list of images used for object detection - same for every recording (e.g., --image_ids 2 4 8 16 32).
                     Detect objects in a number of randomly selected images - different for every recording (e.g., --image_ids random 5).
-                    If not passed as an argument all images are detected
+                    If not passed as an argument all images are detected (assumes consecutive numbering starting with ID 1)
                     ''')
     parser.add_argument('--show-yolo', action='store_true', help='show `yolo` as additional label near generated bounding box')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
