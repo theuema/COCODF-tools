@@ -33,7 +33,7 @@ def rotate():
         coco_path = os.path.join(recording_path, 'output')
         all_img_paths = get_image_paths(coco_path)
         coco_annotation_data_fpath = get_annoation_data_fpath(coco_path)
-        if not len(all_img_paths) or not os.path.exists(coco_annotation_data_fpath):
+        if not len(all_img_paths) or not os.path.isfile(coco_annotation_data_fpath):
             print('Error: No images or annotations to rotate found in coco path (%s)' % coco_path)
             return
         

@@ -10,7 +10,7 @@ from lib.base import coco2xyxy, rle2mask, plot_one_bbox
     :Segmentation mask is visualized: if `segmentation` is set `True`
     :Returns: xyxy bboxes for processed image as list
 '''
-def plot_image_annotations(img_path, annotations, colors, labels: dict, annotator: str=None, segmentation: bool=False, out=None, show: bool=False, img_id=None):
+def image_plot_annotations(img_path, annotations, colors, labels: dict, annotator: str=None, segmentation: bool=False, out=None, show: bool=False, img_id=None):
     if out is None and show is False:
         return
     

@@ -37,7 +37,7 @@ def store():
     annotation_data_fpath, in_place = opt.annotation_data_path, opt.add_rotation_matrix
 
     try: # annotation_data file path check
-        if not os.path.exists(annotation_data_fpath):
+        if not os.path.isfile(annotation_data_fpath):
             raise AttributeError('File given to `--annotation-data-path` does not exist.')
     except Exception as e:
             print('Exception: {}'.format(str(e)), file=sys.stderr)

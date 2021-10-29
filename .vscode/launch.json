@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: transform-coco-poses-RSG",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/transform_coco_poses_for_RSG.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--annotation-data-path",
+                "../OptiTrack_recordings_r_1_output/annotations/data.json",
+                "--image-ids",
+                "3"
+            ]
+        },
+        {
             "name": "Python: store-rmatrix-json",
             "type": "python",
             "request": "launch",
@@ -12,7 +25,8 @@
             "console": "integratedTerminal",
             "args": [
                 "--annotation-data-path",
-                "../OptiTrack_recordings/1/output/annotations/data.json"
+                "../OptiTrack_recordings_r_1_output/annotations/data.json",
+                "--add-rotation-matrix"
             ]
         },
         {
@@ -77,7 +91,7 @@
                 "--coco-path",
                 "../OptiTrack_recordings/1/output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1",
+                "../OptiTrack_recordings_r_1_output",
                 "--unique-img-id"
             ]
         },
@@ -103,9 +117,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_r_1",
+                "../OptiTrack_recordings_r_1_output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1/annotated_images",
+                "../OptiTrack_recordings_r_1_output/annotated_images",
                 "--annotator",
                 "OptiTrack",
                 "--labels-path",
@@ -143,9 +157,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_r_1",
+                "../OptiTrack_recordings_r_1_output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1/compared_images",
+                "../OptiTrack_recordings_r_1_output/compared_images",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--annotator",
@@ -219,9 +233,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_r_1",
+                "../OptiTrack_recordings_r_1_output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1/detected_images",
+                "../OptiTrack_recordings_r_1_output/detected_images",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--image-ids",
@@ -289,9 +303,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_r_1",
+                "../OptiTrack_recordings_r_1_output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1/annotated_images",
+                "../OptiTrack_recordings_r_1_output/annotated_images",
                 "--image-ids",
                 "1",
                 "6",

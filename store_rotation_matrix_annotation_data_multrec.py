@@ -53,7 +53,7 @@ def store():
         # init (file)paths for current recording
         annotation_data_fpath = str(Path(recording_path) / 'output' / 'annotations' / Path(annotation_json_name).with_suffix('')) + '.json'
         try: # annotation_data file path check
-            if not os.path.exists(annotation_data_fpath):
+            if not os.path.isfile(annotation_data_fpath):
                 raise AttributeError('Annotation file not found in recording data.')
         except Exception as e:
                 print('Exception: {}'.format(str(e)), file=sys.stderr)

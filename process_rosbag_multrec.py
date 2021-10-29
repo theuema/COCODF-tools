@@ -38,7 +38,7 @@ def process():
         # init (file)paths for current recording
         image_bag_fpath = str(Path(recording_path / Path(image_bag_name).with_suffix(''))) + '.bag'
         try: 
-            if not os.path.exists(image_bag_fpath):
+            if not os.path.isfile(image_bag_fpath):
                 raise AttributeError('Filename given to `--image-bag-name` does not exist.')
         except Exception as e:
             print('Exception: {}'.format(str(e)), file=sys.stderr)

@@ -75,7 +75,7 @@ def detect():
         # init save_coco
         if save_coco:
             coco_annotation_data_fpath = get_annoation_data_fpath(coco_path) # get annotation data to gather images-info for detection *.json file
-            if not len(all_img_paths) or not os.path.exists(coco_annotation_data_fpath):
+            if not len(all_img_paths) or not os.path.isfile(coco_annotation_data_fpath):
                 print('Error: No images or annotations to process found in coco path (%s)' % coco_path)
                 return
             coco_annotation_data = load_json(coco_annotation_data_fpath)

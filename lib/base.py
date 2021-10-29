@@ -265,15 +265,11 @@ def calc_add_rmatrix(coco_annotation_data: dict):
         relative_pose_rmatrix = quat2rot(annotation['relative_pose']['quaternion'])
         
         rmatrix_annotation = rmatrix_coco_annotation_data['annotations'][i]
-        try: # add the rotation matrix to the correct annotation check
+        try: # equal annotations check
             if rmatrix_annotation != annotation:
-                raise ValueError('Annotation data values not identical (index problem). Not adding the wrong rotation matrix. Abort.')
+                raise ValueError('Annotation data values not identical (index bug). Not adding a wrong rotation matrix. Abort.')
         except Exception as e:
                 print('Exception: {}'.format(str(e)), file=sys.stderr)
-                print('Annotation from file:')
-                print(annotation)
-                print('Annotation from bad index:')
-                print(rmatrix_annotation)
                 sys.exit(1)
 
         rmatrix_annotation['object_pose']['rotation'] = object_pose_rmatrix

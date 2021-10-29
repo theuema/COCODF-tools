@@ -3,7 +3,7 @@ import argparse
 import os
 from numpy import random
 
-from lib.image_plot_annotations import plot_image_annotations
+from lib.image_plot_annotations import image_plot_annotations
 from lib.base import (init_output_path, get_image_paths, get_img_ids_from_arguments, load_json, get_annoation_data_fpath, 
                         get_id_img_path, get_id_img_annotations, load_labels, load_custom_labels)
 
@@ -42,7 +42,7 @@ def plot():
     # init filepaths
     all_img_paths = get_image_paths(coco_path)
     coco_annotation_data_fpath = get_annoation_data_fpath(coco_path)
-    if not len(all_img_paths) or not os.path.exists(coco_annotation_data_fpath):
+    if not len(all_img_paths) or not os.path.isfile(coco_annotation_data_fpath):
         print('Error: No images or annotations to process found in coco path (%s)' % coco_path)
         return
 
@@ -69,7 +69,7 @@ def plot():
                 for _ in range(3)] for _ in range(len(id_img_annotations))]
 
             # plot annotations for image
-            _ = plot_image_annotations(id_img_path, id_img_annotations, colors, labels, annotator, segmentation, show=True, img_id=img_id)
+            _ = image_plot_annotations(id_img_path, id_img_annotations, colors, labels, annotator, segmentation, show=True, img_id=img_id)
 
         print('Done showing annotated images.')
 
@@ -84,7 +84,7 @@ def plot():
                 for _ in range(3)] for _ in range(len(id_img_annotations))]
 
             # plot annotations for image
-            _ = plot_image_annotations(id_img_path, id_img_annotations, colors, labels, annotator, segmentation, out=output_path, img_id=img_id)
+            _ = image_plot_annotations(id_img_path, id_img_annotations, colors, labels, annotator, segmentation, out=output_path, img_id=img_id)
             
         print('Done saving annotated images (%s)' % output_path)
 

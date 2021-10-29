@@ -15,7 +15,7 @@ from ScaledYOLOv4.utils.torch_utils import select_device
 from ScaledYOLOv4.models.experimental import attempt_load
 from ScaledYOLOv4.utils.general import check_img_size
 
-from lib.image_plot_annotations import plot_image_annotations
+from lib.image_plot_annotations import image_plot_annotations
 from lib.scaledyolov4_detect import scaledyolov4_detect
 from lib.base import (coco2xyxy, init_output_path, get_image_paths, get_img_ids_from_arguments, load_json, get_annoation_data_fpath, 
                         get_yolo_data_fpath, get_id_img_path, get_id_img_annotations, load_labels, plot_one_bbox, 
@@ -41,7 +41,7 @@ def plot_compare():
             opt.image_ids, opt.category_id_is_line, opt.save_results
 
     # init detect condition
-    detect_images = not os.path.exists(get_yolo_data_fpath(coco_path)) # detect and save if no annotation data from a previous detection exists
+    detect_images = not os.path.isfile(get_yolo_data_fpath(coco_path)) # detect and save if no annotation data from a previous detection exists
 
     try: # detect status check
         if image_ids is None and detect_images:
@@ -55,7 +55,7 @@ def plot_compare():
     # init filepaths / dataset related
     all_img_paths = get_image_paths(coco_path)
     coco_annotation_data_fpath = get_annoation_data_fpath(coco_path)
-    if not len(all_img_paths) or not os.path.exists(coco_annotation_data_fpath):
+    if not len(all_img_paths) or not os.path.isfile(coco_annotation_data_fpath):
         print('Error: No images or annotations to process found in coco path (%s)' % coco_path)
         return
     coco_annotation_data = load_json(coco_annotation_data_fpath)
@@ -88,7 +88,7 @@ def plot_compare():
 
         # init to save yolo annotations
         coco_annotation_data_fpath = get_annoation_data_fpath(coco_path) # get annotation data to gather images-info for detection *.json file
-        if not len(all_img_paths) or not os.path.exists(coco_annotation_data_fpath):
+        if not len(all_img_paths) or not os.path.isfile(coco_annotation_data_fpath):
             print('Error: No images or annotations to process found in coco path (%s)' % coco_path)
             return
         coco_annotation_data = load_json(coco_annotation_data_fpath)
@@ -157,7 +157,7 @@ def plot_compare():
             id_img_annotations = get_id_img_annotations(img_id, coco_annotation_data) # Get all annotations (1...N objects) in image of ID
             
             # plot annotations for image
-            _ = plot_image_annotations(id_img_path, id_img_annotations, annotator_colors, annotator_labels, annotator, segmentation, 
+            _ = image_plot_annotations(id_img_path, id_img_annotations, annotator_colors, annotator_labels, annotator, segmentation, 
                                         out=annotated_images_output_path, img_id=img_id)
 
     # init output path before writing results

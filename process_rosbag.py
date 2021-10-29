@@ -17,7 +17,7 @@ def process():
     try: # undistort arguments check
         if undistort and camera_yaml is None:
             raise AttributeError('Need camera intrinsics `--camera-yaml` to `--undistort` images.')
-        if not os.path.exists(image_bag_fpath):
+        if not os.path.isfile(image_bag_fpath):
             raise AttributeError('File given to `--image-bag-path` does not exist.')
     except Exception as e:
             print('Exception: {}'.format(str(e)), file=sys.stderr)
