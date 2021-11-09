@@ -14,7 +14,22 @@
                 "--annotation-data-path",
                 "../OptiTrack_recordings_r_1_output/annotations/data.json",
                 "--image-ids",
-                "3"
+                "8"
+            ]
+        },
+        {
+            "name": "Python: transform-coco-poses-RSG-multrec",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/transform_coco_poses_for_RSG_multrec.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--recordings-path",
+                "../OptiTrack_recordings_rsg",
+                "--annotation-json-name",
+                "data.json",
+                "--image-ids",
+                "8"
             ]
         },
         {
@@ -37,7 +52,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_r",
+                "../OptiTrack_recordings_rsg",
                 "--annotation-json-name",
                 "data.json",
                 "--add-rotation-matrix"
@@ -105,7 +120,7 @@
                 "--recordings-path",
                 "../OptiTrack_recordings",
                 "--output-path",
-                "../OptiTrack_recordings_r",
+                "../OptiTrack_recordings_rsg",
                 "--unique-img-id"
             ]
         },
@@ -196,7 +211,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_r",
+                "../OptiTrack_recordings_rsg",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--annotator",
@@ -204,9 +219,7 @@
                 "--annotator-labels-path",
                 "labels/aau.customnames",
                 "--image-ids",
-                "1",
-                "6",
-                "18",
+                "8",
                 "--img-size",
                 "1536",
                 "--augment",

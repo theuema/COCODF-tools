@@ -6,6 +6,25 @@ from pathlib import Path
 from lib.write_pose_files import write_2D_position, write_3D_pose
 from lib.base import init_output_path, load_json, get_img_ids_from_arguments
 
+'''
+    :Takes COCO data format annotation json file specified by `--annotation-data-path`
+    :Works with the following json structure:
+        images/
+        images/1...N/file_name
+        annotations/
+            annotations/1...N/object_pose/position[3] (absolute position of an object in a predefined coordinate system)
+            annotations/1...N/object_pose/quaterion[4] (object pose quaternion)
+            annotations/1...N/object_pose/rotation[9] (object pose rotation matrix)
+            annotations/1...N/camera_pose/position[3] (absolute position of the camera for a particular image/frame in a predefined coordinate system)
+            annotations/1...N/camera_pose/quaterion[4] (camera pose quaternion)
+            annotations/1...N/camera_pose/rotation[9] (camera pose rotation matrix)
+            annotations/1...N/bbox[4] (bbox of the annotated object of the 2D image plane in COCO format)
+    :Saves: the following files to a new directory `rsg/` next to the json file specified by `--annotation-data-path`
+         - 0000000Image_ID_3D-pose-cam.txt: (1 file per image/frame, rows #1) the complete pose of the camera (XYZ, rotation matrix, quaternion) for a given image/frame
+         - 0000000Image_2D-pos-objects.cl: (1 file per image/frame, rows: #N annotations) the object/category ID + center point (XY) of all objects visible in the image/frame with id Image_ID
+         - 3D-pose-objects.enh: (1 file per recording, rows: rows: #N tracked objects) the object/category ID + complete pose of all tracked objects (static objects 'digital twin')
+'''
+
 def transform():
     annotation_data_fpath, image_ids = opt.annotation_data_path, opt.image_ids
     
@@ -61,9 +80,9 @@ def transform():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Takes quaternions stored in a COCO data format annotation file to calculate the rotation matrix, add to the annotation data and save a new file')
+    parser = argparse.ArgumentParser(description='Takes COCO data format annotation json file and extracts image-specific camera and object position and pose data and saves information in ASCII format')
     parser.add_argument('--annotation-data-path', type=str, required=True,
-                        help='(File)path to the COCO data format annotation `*.json` file, containing 3D camera position and 2D/3D object coordinates, quaternions and rotation matrices')
+                        help='(File)path to the COCO data format annotation `*.json` file, containing absolute 3D camera positions for each image/frame, absolute 3D object positions for each recording (the physical model tracked) and Bboxes (COCO format) for each object in each image/fame')
     parser.add_argument('--image-ids', nargs='*', # nargs: creates a list; 0 or more values expected
                         help='''
                         (optional) ID list of images for which COCO data is extracted and transformed for RSG (e.g., `--image_ids 2 4 8 16 32`);
