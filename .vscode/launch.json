@@ -12,7 +12,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--annotation-data-path",
-                "../OptiTrack_recordings_r_1_output/annotations/data.json",
+                "../OptiTrack_recordings_jul21_rsg_1_output/annotations/data.json",
+                "--BCcam-path",
+                "extrinsics/calib_trans_OptiTrack_recordings_jul21.yaml",
                 "--image-ids",
                 "8"
             ]
@@ -25,9 +27,11 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_rsg",
+                "../OptiTrack_recordings_jul21_rsg",
                 "--annotation-json-name",
                 "data.json",
+                "--BCcam-path",
+                "extrinsics/calib_trans_OptiTrack_recordings_jul21.yaml",
                 "--image-ids",
                 "8"
             ]
@@ -40,7 +44,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--annotation-data-path",
-                "../OptiTrack_recordings_r_1_output/annotations/data.json",
+                "../OptiTrack_recordings_jul21_r_1_output/annotations/data.json",
                 "--add-rotation-matrix"
             ]
         },
@@ -52,7 +56,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_rsg",
+                "../OptiTrack_recordings_jul21_rsg",
                 "--annotation-json-name",
                 "data.json",
                 "--add-rotation-matrix"
@@ -66,7 +70,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--image-bag-path",
-                "../OptiTrack_recordings/1/camera_animals_full_closest_sync.bag",
+                "../OptiTrack_recordings_jul21/1/camera_animals_full_closest_sync.bag",
                 "--image-bag-topic",
                 "/synchronizer/rgb_undistort",
                 "--output-path",
@@ -84,13 +88,13 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../_backup_OptiTrack_recordings/OptiTrack_recordings",
+                "../_backup_OptiTrack_recordings_jul21/OptiTrack_recordings",
                 "--image-bag-name",
                 "camera_animals_full_closest_sync.bag",
                 "--image-bag-topic",
                 "/synchronizer/rgb_undistort",
                 "--output-path",
-                "../OptiTrack_recordings",
+                "../OptiTrack_recordings_jul21",
                 "--camera-yaml",
                 "intrinsics/calib_file_fullres_drop.yaml",
                 "--undistort"
@@ -104,9 +108,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings/1/output",
+                "../OptiTrack_recordings_jul21/1/output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1_output",
+                "../OptiTrack_recordings_jul21_r_1_output",
                 "--unique-img-id"
             ]
         },
@@ -118,9 +122,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings",
+                "../OptiTrack_recordings_jul21",
                 "--output-path",
-                "../OptiTrack_recordings_rsg",
+                "../OptiTrack_recordings_jul21_rsg",
                 "--unique-img-id"
             ]
         },
@@ -132,9 +136,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_r_1_output",
+                "../OptiTrack_recordings_jul21_r_1_output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1_output/annotated_images",
+                "../OptiTrack_recordings_jul21_r_1_output/annotated_images",
                 "--annotator",
                 "OptiTrack",
                 "--labels-path",
@@ -153,7 +157,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_r",
+                "../OptiTrack_recordings_jul21_r",
                 "--annotator",
                 "OptiTrack",
                 "--labels-path",
@@ -172,9 +176,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_r_1_output",
+                "../OptiTrack_recordings_jul21_r_1_output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1_output/compared_images",
+                "../OptiTrack_recordings_jul21_r_1_output/compared_images",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--annotator",
@@ -211,7 +215,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_rsg",
+                "../OptiTrack_recordings_jul21_rsg",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--annotator",
@@ -246,9 +250,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_r_1_output",
+                "../OptiTrack_recordings_jul21_r_1_output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1_output/detected_images",
+                "../OptiTrack_recordings_jul21_r_1_output/detected_images",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--image-ids",
@@ -282,7 +286,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_r",
+                "../OptiTrack_recordings_jul21_r",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--image-ids",
@@ -316,9 +320,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_r_1_output",
+                "../OptiTrack_recordings_jul21_r_1_output",
                 "--output-path",
-                "../OptiTrack_recordings_r_1_output/annotated_images",
+                "../OptiTrack_recordings_jul21_r_1_output/annotated_images",
                 "--image-ids",
                 "1",
                 "6",

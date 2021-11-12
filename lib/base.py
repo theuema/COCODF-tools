@@ -181,6 +181,13 @@ def load_camera_intrinsics(yaml_fpath):
 
     return {'camera_matrix': camera_matrix, 'dist_coefficients': dist_coefficients, 'img_size': img_size}
 
+def load_extrinsic_trans_bc(path):
+    # loads rigid body camera frame (B->C) transformation matrix
+    with open(path) as f:
+        extrinsic_trans = yaml.load(f, Loader=yaml.FullLoader)
+    extrinsic_trans = np.array(extrinsic_trans['transformation']).reshape(4, 4)
+    return extrinsic_trans
+
 def get_id_img_path(img_id: int, all_img_paths: list):
     # get image path from image ID (img_id must be checked previously for out of bounds)
     # TODO: works only if 'image_id' corresponds to a sorted list of image paths (see: get_image_paths(dir))

@@ -1,10 +1,11 @@
 import argparse
 import sys
 import os
+import numpy as np
 from pathlib import Path
 
-from lib.write_pose_files import write_2D_position, write_3D_pose
-from lib.base import init_output_path, load_json, get_img_ids_from_arguments
+from lib.write_pose_files import write_2D_position, write_3D_pose, write_3D_position, write_3D_orientation_rot
+from lib.base import init_output_path, load_json, get_img_ids_from_arguments, load_extrinsic_trans_bc, quat2rot
 
 '''
     :Takes COCO data format annotation json file specified by `--annotation-data-path`
@@ -26,7 +27,7 @@ from lib.base import init_output_path, load_json, get_img_ids_from_arguments
 '''
 
 def transform():
-    annotation_data_fpath, image_ids = opt.annotation_data_path, opt.image_ids
+    annotation_data_fpath, image_ids, BC_fpath = opt.annotation_data_path, opt.image_ids, opt.BCcam_path
     
     # init (file)paths
     try: # annotation_data file path check
@@ -37,6 +38,7 @@ def transform():
             sys.exit(1)
 
     coco_annotation_data = load_json(annotation_data_fpath)
+    extrinsic_trans = load_extrinsic_trans_bc(BC_fpath)
     save_path = str(Path(annotation_data_fpath).parent / 'rsg')
     init_output_path(save_path)
 
@@ -62,22 +64,46 @@ def transform():
             cl_path = os.path.join(save_path, image_name + '_2D-pos-objects' + '.cl')
             write_2D_position(cl_path, annotation['bbox'], mode='a', category_id=annotation['category_id'])
         
-            if image_name not in image_names: # only 1x each image (= 3D camera pose for one frame)
-                # write/append 3D camera position, rotation matrix and quaternions for image (text file)
+            if image_name not in image_names: # only 1x each image (= 3D image plane frame for one image)
+                # write/append 3D camera position and image plane orientation for image (text file)
                 txt_path = os.path.join(save_path, image_name + '_3D-pose-cam' + '.txt')
-                write_3D_pose(txt_path, annotation['camera_pose'], mode='a')
+                enc = 'X Y Z rm00 rm01 rm02 rm10 rm11 rm12 rm20 rm21 rm22' # "rm" denotes 3x3 "rotation matrix rm01 = row 0 column 1"
+
+                # write/append 3D camera position
+                camera_pos = annotation['camera_pose']['position']
+                if os.path.isfile(txt_path): 
+                    write_3D_position(txt_path, camera_pos, mode='a')
+                else: # / add encoding information in first line
+                    write_3D_position(txt_path, camera_pos, mode='a', enc=enc)
+                
+                # write/append 3D orientation of our image plane (C)
+                    # Transform from B ((Camera-rigid) Body frame) to C (image plane) using extrinsic calibration transformation
+
+                    # BC_transM = np.matmul(rot_z(180),rot_x(90))
+                BC_transM = extrinsic_trans[:3, :3] # B->C transformation matrix
+                camera_quat = annotation['camera_pose']['quaternion']
+                B_rotM = quat2rot(camera_quat)
+                    # C_rotM = np.matmul(Rb_rot,rot_z(180))
+                    # C_rotM = np.matmul(C_rotM, rot_x(90))
+                C_rotM = np.matmul(B_rotM, BC_transM) # transform (Camera-rigid) Body frame to match camera frame (Image plane frame)
+                
+                write_3D_orientation_rot(txt_path, C_rotM, mode='a', linebreak=True)
+
                 image_names.append(image_name)
 
         # write/append static data (static: 3D object coordinates for the physical model that is not moved during the recording process)
         if annotation['category_id'] not in category_ids: # len(objects) times (number of objects/categories from the dataset)
             # write 3D object position, rotation matrix and quaternions from a (physically) static model (.ENH file)
             enh_path = os.path.join(save_path, '3D-pose-objects' + '.enh')
-            write_3D_pose(enh_path, annotation['object_pose'], mode='a', category_id=annotation['category_id'])
+            enc = 'X Y Z rm00 rm01 rm02 rm10 rm11 rm12 rm20 rm21 rm22 c xs ys zs' # "rm" denotes 3x3 "rotation matrix rm01 = row 0 column 1"; "c xs ys zs" denotes the corresponding quaternion
+            if os.path.isfile(enh_path): 
+                write_3D_pose(enh_path, annotation['object_pose'], mode='a', category_id=annotation['category_id'])
+            else: # / add encoding information in first line
+                write_3D_pose(enh_path, annotation['object_pose'], mode='a', enc=enc, category_id=annotation['category_id'])
             category_ids.append(annotation['category_id'])
 
     print('Done writing position/pose data for RSG (%s)' % save_path)  #f.write(('%g ' * 5 + '\n') % (cls, *xywh))
     print('Transformed for images ', image_names)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Takes COCO data format annotation json file and extracts image-specific camera and object position and pose data and saves information in ASCII format')
@@ -88,6 +114,8 @@ if __name__ == '__main__':
                         (optional) ID list of images for which COCO data is extracted and transformed for RSG (e.g., `--image_ids 2 4 8 16 32`);
                         if not passed as an argument data for every image is transformed (assumes consecutive numbering starting with ID 1)
                         ''')
+    parser.add_argument("--BCcam-path", type=str, required=True,
+                    help="Path to the yaml-file containing the camera rigid body transformation matrix")
     opt = parser.parse_args()
     print(opt)
 
