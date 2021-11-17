@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 
 from lib.write_pose_files import write_2D_position, write_3D_pose, write_3D_position, write_3D_orientation_rot
-from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, load_extrinsic_trans_bc, quat2rot
+from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, load_B_C, quat2rot
 
 '''
     :Takes COCO data format annotation json file from recordings specified by `--recordings-path` and `--annotation-json-name`
@@ -34,7 +34,7 @@ from lib.base import init_output_path, load_json, get_img_ids_from_arguments, ge
 '''
 
 def transform():
-    recordings_path, annotation_json_name, image_ids, BC_fpath = opt.recordings_path, opt.annotation_json_name, opt.image_ids, opt.BCcam_path
+    recordings_path, annotation_json_name, image_ids, B_C_fpath = opt.recordings_path, opt.annotation_json_name, opt.image_ids, opt.BCcam_path
     
     # get all recording paths
     recording_paths = get_subdir_paths(recordings_path)
@@ -55,7 +55,7 @@ def transform():
                 sys.exit(1)
 
         coco_annotation_data = load_json(annotation_data_fpath)
-        extrinsic_trans = load_extrinsic_trans_bc(BC_fpath)
+        B_C = load_B_C(B_C_fpath) 
         save_path = str(Path(annotation_data_fpath).parent / 'rsg')
         init_output_path(save_path)
 
@@ -81,30 +81,30 @@ def transform():
                 cl_path = os.path.join(save_path, image_name + '_2D-pos-objects' + '.cl')
                 write_2D_position(cl_path, annotation['bbox'], mode='a', category_id=annotation['category_id'])
             
-                if image_name not in image_names: # only 1x each image (= 3D image plane frame for one image)
-                    # write/append 3D camera position and image plane orientation for image (text file)
+                if image_name not in image_names: # only 1x each image (= 3D camera-plane frame for one image)
+                    # Extract rotation and translation from B->C, where "C_rb" = "Crb" = camera-rigid-body = B
+                    R_bc = B_C[:3, :3]  # rotation from C_rb to C_plane # R_bc = np.matmul(rot_z(180),rot_x(90))
+                    t_bc = B_C[:3, 3:]  # translation from C_rb to C_plane
+
+                    Q_Crb = annotation['camera_pose']['quaternion'] # Quaternion_Crb
+                    P_Crb = np.array(annotation['camera_pose']['position']).reshape(1,3) # Position_Crb
+                    R_Crb = quat2rot(Q_Crb) # Rotation_Crb
+                    # translate camera-rigid-body frame (C_rb) to match camera frame (C_plane)
+                    R_Cplane = np.matmul(R_Crb, R_bc)  # rotation
+                    P_Cplane = P_Crb.T + np.matmul(R_Crb, t_bc) # translation
+
+                    # write/append 3D camera-plane position and camera-plane orientation for image (text file)
                     txt_path = os.path.join(save_path, image_name + '_3D-pose-cam' + '.txt')
                     enc = 'X Y Z rm00 rm01 rm02 rm10 rm11 rm12 rm20 rm21 rm22' # "rm" denotes 3x3 "rotation matrix rm01 = row 0 column 1"
 
-                    # write/append 3D camera position
-                    camera_pos = annotation['camera_pose']['position']
+                    # write camera-plane position
                     if os.path.isfile(txt_path): 
-                        write_3D_position(txt_path, camera_pos, mode='a')
+                        write_3D_position(txt_path, P_Cplane.T.flatten().tolist(), mode='a')
                     else: # / add encoding information in first line
-                        write_3D_position(txt_path, camera_pos, mode='a', enc=enc)
-                    
-                    # write/append 3D orientation of our image plane (C)
-                        # Transform from B ((Camera-rigid) Body frame) to C (image plane) using extrinsic calibration transformation
+                        write_3D_position(txt_path, P_Cplane.T.flatten().tolist(), mode='a', enc=enc)
 
-                        # BC_transM = np.matmul(rot_z(180),rot_x(90))
-                    BC_transM = extrinsic_trans[:3, :3] # B->C transformation matrix
-                    camera_quat = annotation['camera_pose']['quaternion']
-                    B_rotM = quat2rot(camera_quat) 
-                        # C_rotM = np.matmul(Rb_rot,rot_z(180))
-                        # C_rotM = np.matmul(C_rotM, rot_x(90))
-                    C_rotM = np.matmul(B_rotM, BC_transM) # transform (Camera-rigid) Body frame to match camera frame (Image plane frame)
-                    
-                    write_3D_orientation_rot(txt_path, C_rotM, mode='a', linebreak=True)
+                    # write camera-plane orientation
+                    write_3D_orientation_rot(txt_path, R_Cplane, mode='a', linebreak=True)
 
                     image_names.append(image_name)
 

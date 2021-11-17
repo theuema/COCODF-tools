@@ -22,6 +22,7 @@ def write_2D_position(save_fpath: str, bbox: list, mode: str, category_id: int):
 
 '''
 :write/append 3D camera position, rotation matrix and quaternions:
+:pose: a dict containing 'position' (XYZ) and 'quaternion' (c xs ys zs)
 :encoding: [category_id] X Y Z rm00 rm01 rm02 rm10 rm11 rm12 rm20 rm21 rm22 c xs ys zs
 :where: [category_id] is optional
         "rm01" denotes a 3x3 "rotation matrix row 0 column 1"
@@ -86,6 +87,9 @@ def write_3D_position(fpath: str, pos: list, mode: str, enc: str = None, categor
         if linebreak:
             f.write('\n')
 
+'''
+:write/append 3D orientation to a file specified by `fpath`
+'''
 def write_3D_orientation_rot(fpath: str, rotM: list, mode: str, linebreak: bool = False): #rotM = [[r00, r01, r02],[r10, r11, r12],[r20, r21, r22]]
     with open(fpath, mode) as f:
         # write rotation matrix
