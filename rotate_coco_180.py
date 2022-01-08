@@ -12,7 +12,8 @@ from lib.gen_rotated_coco_180 import gen_180_rotated_coco_annotation_data, gen_1
             ./coco_path/images/*.png
         ./coco_path/annotations/
             ./coco_path/annotations/data.json
-    :Rotates the bounding boxes for all images as well as the corresponding annotation/data.json: and stores the new rotated dataset to `output_path`
+    :Writes a annotation/data.json with 180° rotated bounding boxes; Rotates all images in `--coco_path` and its subfolders;
+    :Stores the new rotated dataset to `output_path`
 '''
 def rotate():
     coco_path, output_path, make_img_id_unique = \
@@ -35,9 +36,10 @@ def rotate():
     gen_180_rotated_images(all_img_paths, output_path=r_images_output_path)
 
     # also rotate distorted image data if exists
-    if os.path.exists(str(Path(coco_path) / 'output' / 'distorted_images')):
+    if os.path.exists(str(Path(coco_path) / 'distorted_images')):
         all_img_paths = get_distorted_image_paths(coco_path)
-        r_images_output_path = str(Path(output_path) / 'output' / 'distorted_images')
+        r_images_output_path = str(Path(output_path) / 'distorted_images')
+        init_output_path(r_images_output_path)
         gen_180_rotated_images(all_img_paths, output_path=r_images_output_path)
 
     print('Done rotating COCO data format data (%s)' % output_path)
@@ -46,7 +48,7 @@ def rotate():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='rotates all images for 180 degrees and projects annotation data points of annotation/image pairs in COCO data format to fit the rotated image dataset')
     parser.add_argument('--coco-path', type=str, required=True,
-                        help='path to the COCO dataset directory containing annotations/data.json file and images/ folder')
+                        help='path to the COCO dataset directory containing annotations/data.json file, images/ and distorted_images/ (optional) folder')
     parser.add_argument('--output-path', type=str, required=True,
                         help='rotated dataset output folder (creates annotations/ and images/ folders)')
     parser.add_argument('--unique-img-id', action='store_true', help='make sure that rotated data `images` have unique `image_id` (e.g., each image is stored to `images` in `data.json` only once!)')

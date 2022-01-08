@@ -1,4 +1,5 @@
 import argparse
+from re import I
 import sys
 import os
 from pathlib import Path
@@ -13,12 +14,12 @@ from lib.base import init_output_path, extract_rosbag_images, load_camera_intrin
         ...
 
     :Extracts images from a given ROSbag: specified by `--recordings_path`, `--image-bag-name` and `--image-bag-topic`
-    :Performs undistort of images using camera intrinsics: specified by `--camera-yaml` and `--perform-undistort`
+    :Performs undistort of images using camera intrinsics: specified by `--camera-yaml` and `--distorted'
     :Saves extracted images to an output directory: specified by `--output-dir`
 '''
 def process():
-    output_path, recordings_path, image_bag_topic, image_bag_name, undistort, camera_yaml = \
-        opt.output_path, opt.recordings_path, opt.image_bag_topic, opt.image_bag_name, opt.undistort, opt.camera_yaml
+    output_path, recordings_path, image_bag_topic, image_bag_name, distorted, camera_yaml = \
+        opt.output_path, opt.recordings_path, opt.image_bag_topic, opt.image_bag_name, opt.distorted, opt.camera_yaml
 
     # get all recording paths
     recording_paths = get_subdir_paths(recordings_path)
@@ -26,9 +27,9 @@ def process():
         print('Error: No recording directories found (%s)' % recordings_path)
         sys.exit(1)
 
-    try: # undistort arguments check
-        if undistort and camera_yaml is None:
-            raise AttributeError('Need camera intrinsics `--camera-yaml` to `--undistort` images.')
+    try: # distorted arguments check
+        if distorted and camera_yaml is None:
+            raise AttributeError('Need camera intrinsics `--camera-yaml` to `--distorted` images.')
     except Exception as e:
             print('Exception: {}'.format(str(e)), file=sys.stderr)
             sys.exit(1)
@@ -45,16 +46,24 @@ def process():
             print('Missing file (%s)' % image_bag_fpath)
             sys.exit(1)
 
-        if undistort:
-            e_images_output_path = str(Path(output_path) / Path(recording_path).name / 'output' / 'images')
-        else: 
-            e_images_output_path = str(Path(output_path) / Path(recording_path).name / 'output' / 'distorted_images')
-        
-        init_output_path(e_images_output_path)
+        # Init (f)paths
+        output_path_distorted = str(Path(output_path) / Path(recording_path).name / 'output' / 'distorted_images') 
+        output_path_undistorted = str(Path(output_path) / Path(recording_path).name / 'output' / 'images')
+        init_output_path(output_path_distorted)
+        init_output_path(output_path_undistorted)
 
         # Process ROSbag
         intrinsics = load_camera_intrinsics(camera_yaml)
-        extract_rosbag_images(image_bag_fpath, image_bag_topic, e_images_output_path, undistort, intrinsics)
+        if distorted:
+            # undistort and store images
+            extract_rosbag_images(image_bag_fpath, image_bag_topic, output_path_undistorted, True, intrinsics)
+            # store distorted images
+            extract_rosbag_images(image_bag_fpath, image_bag_topic, output_path_distorted, False, intrinsics)
+        else:
+            # store undistorted images
+            extract_rosbag_images(image_bag_fpath, image_bag_topic, output_path_undistorted, False, intrinsics)
+            # distort and store distorted images
+            extract_rosbag_images(image_bag_fpath, image_bag_topic, output_path_distorted, True, intrinsics)
 
     print('Done extracting images from ROSbag for multiple recordings (%s)' % (output_path + '/N' + '/output'))
 
@@ -71,7 +80,7 @@ if __name__ == '__main__':
     parser.add_argument('--image-bag-name', type=str, required=True, help='ROSbag filename (e.g., `image_recording.bag` or just `image_recording`) containing recorded images')
     parser.add_argument('--image-bag-topic', type=str, required=True, help='Topic name in ROSbag containing recorded images')
     #parser.add_argument('--extract-images', action='store_true', help='Extract images')
-    parser.add_argument('--undistort', action='store_true', help='Use camera intrisics to undistort extracted images')
+    parser.add_argument('--distorted', action='store_true', help='Specifies if images in rosbag are distorted images')
     #parser.add_argument('--object-path', type=str, help='Path to the ROSbag containing the objects' poses')
     parser.add_argument('--camera-yaml', type=str, help='Path to the yaml-file containing the camera intrinsics')
     #parser.add_argument('--rb-cam', type=str, help='Path to the yaml-file containing the camera Rigid Body Transformaiton matrix')

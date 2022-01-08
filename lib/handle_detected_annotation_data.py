@@ -11,7 +11,7 @@ def add_detected_annotations(id_annotations: list, annotations: list, annotation
         annotation_id += 1
 
 def add_detected_categories(id_categories: list, categories: list):
-    # append _new_ category to present annotation categories (each category is in categories just once)
+    # append _new_ category to existing annotation categories (each category is in categories just once)
     for id_category in id_categories:
         category = next((category for category in categories if category['id'] == id_category['id']), None)
         if category is None:

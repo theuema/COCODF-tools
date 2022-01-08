@@ -5,6 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: align-aau-coco-labels",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/align_aau_coco_labels.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--annotation-data-path",
+                "../OptiTrack_recordings_jan22_7_pr/annotations/data.json",
+                "--mapping-path",
+                "labels/aau_coco.mapping",
+                "--align-in-place"
+            ]
+        },
+        {
             "name": "Python: transform-coco-poses-RSG",
             "type": "python",
             "request": "launch",
@@ -73,15 +87,16 @@
             "program": "${workspaceFolder}/process_rosbag.py",
             "console": "integratedTerminal",
             "args": [
-                "--image-bag-path",
-                "../OptiTrack_recordings_jul21/1/camera_animals_full_closest_sync.bag",
+                "--recording-path",
+                "../OptiTrack_recordings_jan22_7_p",
+                "--image-bag-name",
+                "camera_animals_full_closest_sync.bag",
                 "--image-bag-topic",
                 "/synchronizer/rgb_undistort",
                 "--output-path",
-                "../OptiTrack_recordings_e_1",
+                "../OptiTrack_recordings_jan22_7_p",
                 "--camera-yaml",
                 "intrinsics/calib_file_fullres_drop.yaml",
-                "--undistort"
             ]
         },
         {
@@ -92,16 +107,15 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../_backup_OptiTrack_recordings_jul21/OptiTrack_recordings",
+                "../OptiTrack_recordings_jan22_p",
                 "--image-bag-name",
                 "camera_animals_full_closest_sync.bag",
                 "--image-bag-topic",
                 "/synchronizer/rgb_undistort",
                 "--output-path",
-                "../OptiTrack_recordings_jul21",
+                "../OptiTrack_recordings_jan22_p",
                 "--camera-yaml",
                 "intrinsics/calib_file_fullres_drop.yaml",
-                "--undistort"
             ]
         },
         {
@@ -112,9 +126,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_jul21/1/output",
+                "../OptiTrack_recordings_jan22_7_p/output",
                 "--output-path",
-                "../OptiTrack_recordings_jul21_r_1_output",
+                "../OptiTrack_recordings_jan22_7_pr",
                 "--unique-img-id"
             ]
         },
@@ -126,9 +140,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21",
+                "../OptiTrack_recordings_jan22_p",
                 "--output-path",
-                "../OptiTrack_recordings_jul21_rsg",
+                "../OptiTrack_recordings_jan22_pr",
                 "--unique-img-id"
             ]
         },
@@ -140,9 +154,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_jul21_r_1_output",
+                "../OptiTrack_recordings_jan22_7_pr",
                 "--output-path",
-                "../OptiTrack_recordings_jul21_r_1_output/annotated_images",
+                "../OptiTrack_recordings_jan22_7_pr/annotated_images",
                 "--annotator",
                 "OptiTrack",
                 "--labels-path",

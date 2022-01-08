@@ -20,9 +20,9 @@ def gen_180_rotated_coco_annotation_data(coco_annotation_data_fpath, output_path
     coco_rotated_annotation_data = copy.deepcopy(coco_annotation_data)
 
     # rotate all bboxes and segmentation rle    
-    for annotation in coco_rotated_annotation_data['annotations']:
+    for annotation in coco_annotation_data['annotations']:
         # get image for annotation
-        image = next((image for image in coco_rotated_annotation_data['images'] if image["id"] == annotation['image_id']), None)
+        image = next((image for image in coco_annotation_data['images'] if image["id"] == annotation['image_id']), None)
         if image is None:
             print('Error: image with id {} not found in {}'.format(annotation['image_id'], coco_annotation_data_fpath), file=sys.stderr)
             print('Abort rotation.')
@@ -43,7 +43,7 @@ def gen_180_rotated_coco_annotation_data(coco_annotation_data_fpath, output_path
     if make_img_id_unique:
         coco_rotated_annotation_data['images'] = images
 
-    # store rotated annotation data
+    # save rotated annotation data
     f = os.path.join(output_path, 'data.json')
     with open(f, 'w') as outfile:
         json.dump(coco_rotated_annotation_data, outfile)

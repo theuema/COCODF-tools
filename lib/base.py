@@ -163,14 +163,22 @@ def load_json(fpath):
     return data
 
 def load_labels(fpath):
+    # file encoding: label_string
     with open(fpath) as f:
         labels = {i: line.rstrip() for i, line in enumerate(f)}
     return labels
 
 def load_custom_labels(fpath):
+    # file encoding: category_id label_string
     with open(fpath) as f:
         labels = {int(k): v for line in f for (k, v) in [line.strip().split(None, 1)]}
     return labels
+
+def load_mapping(fpath):
+    # file encoding: category_id new_id label_string
+    with open(fpath) as f:
+        mapping = {int(k): (new_id, name) for line in f for (k, new_id, name) in [line.strip().split(None, 2)]}
+    return mapping
 
 def load_camera_intrinsics(yaml_fpath):
     with open(yaml_fpath) as f:
@@ -284,6 +292,47 @@ def calc_add_rmatrix(coco_annotation_data: dict):
         rmatrix_annotation['relative_pose']['rotation'] = relative_pose_rmatrix
 
     return rmatrix_coco_annotation_data
+
+def align_coco_annotation_data(coco_annotation_data: dict, mapping: dict):
+    # takes current coco_annotation data and aligns category_ids accoring to `mapping` where key = old category_id; value = new category_id;
+    # TODO: search for modifications.txt in root folder and find 'aligned' to abort this function.
+
+    coco_annotation_data_aligned = deepcopy((coco_annotation_data))
+
+    for i, annotation in enumerate(coco_annotation_data['annotations']):
+        category_id = annotation['category_id']
+
+        annotation_aligned = coco_annotation_data_aligned['annotations'][i]
+        try: # equal annotations check
+            if annotation_aligned != annotation:
+                raise ValueError('Annotation data values not identical (index bug). Not further aligning category_ids. Abort.')
+        except Exception as e:
+                print('Exception: {}'.format(str(e)), file=sys.stderr)
+                sys.exit(1)
+
+        annotation_aligned['category_id'] = int(mapping[category_id][0])
+    
+    return coco_annotation_data_aligned
+
+def add_coco_style_categories(coco_annotation_data: dict):
+    # adds COCO data format categories section to coco_annotation_data if not present
+    if 'categories' not in coco_annotation_data:
+
+        labels = load_labels('labels/coco.names')
+        category_ids = []
+        categories = [] # build categories dict
+
+        for annotation in coco_annotation_data['annotations']:
+            category_id = annotation['category_id']
+            label = labels[category_id]
+            if category_id not in category_ids:
+                categories.append({'name': label, 'id': category_id})
+                category_ids.append(category_id)
+
+        coco_annotation_data['categories'] = categories
+
+    return coco_annotation_data
+
 
 def get_image_annotation_object_center(bbox: list): # from [x2, y2, w, h] to (cx, cy)
     # returns the center point of the object from the associated bounding box (image coordinates top left 0/0)
