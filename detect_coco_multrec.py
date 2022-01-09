@@ -60,7 +60,7 @@ def detect():
     _ = model(img.half() if half else img) if device.type != 'cpu' else None  # run once
 
     # detect recording wise
-    for rec_id, recording_path in enumerate(recording_paths):   
+    for i, recording_path in enumerate(recording_paths):   
         # init filepaths
         coco_path = os.path.join(recording_path, 'output')
         all_img_paths = get_image_paths(coco_path)
@@ -84,7 +84,7 @@ def detect():
             images = [] # image-info corresponding to annotation COCO data format
             annotation_id = 0
 
-        # inference for 1 image at a time of recording `rec_id`
+        # inference for 1 image at a time of recording `i`
         for img_id in image_ids: 
             id_img_path = get_id_img_path(img_id, all_img_paths)
             id_img_annotations, id_img_categories = scaledyolov4_detect(id_img_path, img, model, names, colors, device, half, save_txt, opt, 
@@ -110,8 +110,9 @@ def detect():
                 json.dump(data, outfile)
             print('Yolo annotation file saved (%s)' % json_path)
         
-        print('Inference done for all images (recording: %s)' % rec_id)
-            
+        print('Inference done for all images (recording #%s)' % i)
+    
+    print('Done for all %s recordings.' % len(recording_paths))        
     print('Object detection done. (%.3fs)' % (time.time() - t0))
 
 

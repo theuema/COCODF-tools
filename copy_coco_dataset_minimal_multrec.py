@@ -34,7 +34,7 @@ def copy():
         all_img_paths = get_image_paths(coco_path)
         coco_annotation_data_fpath = get_annoation_data_fpath(coco_path)
         if not len(all_img_paths) or not os.path.isfile(coco_annotation_data_fpath):
-            print('Error: No images or annotations to rotate found in coco path (%s)' % coco_path)
+            print('Error: No images or annotations to copy found in coco path (%s)' % coco_path)
             return
         
         c_annotation_data_path = str(Path(output_path) / Path(recording_path).name / 'output' / 'annotations')
@@ -57,7 +57,7 @@ def copy():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='copies all images of multiple recordings in COCO data format and stores the copied dataset to a folder specified by `--output-path`')
+    parser = argparse.ArgumentParser(description='copies all images of multiple recordings in COCO data format dataset and stores the copied dataset to a folder specified by `--output-path`')
     parser.add_argument('--recordings-path', type=str, required=True,
                         help='''
                         path to the dataset directory containing multiple recording folders 1/ ... N/
@@ -66,9 +66,8 @@ if __name__ == '__main__':
                         containing COCO data format annotation/image pairs (annotations/data.json and /images folder)
                         ''')
     parser.add_argument('--output-path', type=str, required=True,
-                        help='rotated dataset output folder')
-    parser.add_argument('--unique-img-id', action='store_true', help='make sure that rotated data `images` have unique `image_id` (e.g., each image is stored to `images` in `data.json` only once!)')
-
+                        help='copied dataset output folder')
+    parser.add_argument('--unique-img-id', action='store_true', help='make sure that copied data `images` dict has unique `image_id` (e.g., no same images in `images` dict of data.json')
     opt = parser.parse_args()
     print(opt)
 

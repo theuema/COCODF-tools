@@ -69,7 +69,6 @@ if __name__ == '__main__':
     parser.add_argument('--output-path', type=str, required=True,
                         help='rotated dataset output folder')
     parser.add_argument('--unique-img-id', action='store_true', help='make sure that rotated data `images` have unique `image_id` (e.g., each image is stored to `images` in `data.json` only once!)')
-
     opt = parser.parse_args()
     print(opt)
 

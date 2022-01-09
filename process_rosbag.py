@@ -48,7 +48,7 @@ def process():
     else:
         # store undistorted images
         extract_rosbag_images(image_bag_fpath, image_bag_topic, output_path_undistorted, False, intrinsics)
-        # store distorted images
+        # distort and store images
         extract_rosbag_images(image_bag_fpath, image_bag_topic, output_path_distorted, True, intrinsics)
     
 

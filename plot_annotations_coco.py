@@ -21,7 +21,7 @@ from lib.base import (init_output_path, get_image_paths, get_img_ids_from_argume
 '''
 def plot():
     coco_path, output_path, show_ids, image_ids, segmentation, annotator, labels_fpath, category_id_is_line = \
-    opt.coco_path, opt.output_path, opt.show_ids, opt.image_ids, opt.segmentation, opt.annotator, opt.labels_path, opt.category_id_is_line
+    opt.coco_path, opt.output_path, opt.show_ids, opt.image_ids, opt.segmentation, opt.annotator, opt.annotator_labels_path, opt.category_id_is_line
 
     try: # save and show arguments check
         if image_ids is None and show_ids is None:
@@ -107,11 +107,11 @@ if __name__ == '__main__':
                         (e.g., `--annotator manual` to label manual annotation, `--annotator OptiTrack` for automated annotation from OptiTrack)
                         ''')
     parser.add_argument('--segmentation', action='store_true', help='enable binary segmentation mask in the output')
-    parser.add_argument('--labels-path', type=str, required=True, help='''
+    parser.add_argument('--annotator-labels-path', type=str, required=True, help='''
                         path to file containing `category_id labels` corresponding to annotations/data.json (e.g., labels/aau.customnames)
                         ''')
     parser.add_argument('--category-id-is-line', action='store_true', 
-                        help='enable if `--labels-path` contains `labels` and the line number equals the `category_id`')
+                        help='enable if `--annotator-labels-path` is a file containing labels and the line number equals the `category_id` (e.g., labels/coco.names)')
     opt = parser.parse_args()
     print(opt)
 

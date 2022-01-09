@@ -22,9 +22,9 @@ def gen_coco_annotation_data_copy(coco_annotation_data_fpath, output_path, make_
         images = []
     
         # store unique images dictionary 
-        for annotation in coco_annotation_data['annotations']:
+        for annotation in coco_annotation_data_copy['annotations']:
             # get image for annotation
-            image = next((image for image in coco_annotation_data['images'] if image["id"] == annotation['image_id']), None)
+            image = next((image for image in coco_annotation_data_copy['images'] if image["id"] == annotation['image_id']), None)
             if image is None:
                 print('Error: image with id {} not found in {}'.format(annotation['image_id'], coco_annotation_data_fpath), file=sys.stderr)
                 print('Abort rotation.')

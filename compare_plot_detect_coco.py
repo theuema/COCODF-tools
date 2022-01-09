@@ -141,7 +141,7 @@ def plot_compare():
     if plot_annotation:
         try: # labels path check
             if labels_fpath is None:
-                raise AttributeError('Data needs to be annotated before comparison. Therefore annotator labels are required. Please provide `--labels_path` and `category-id-is-line` (if necessary) and restart the script.')
+                raise AttributeError('Data needs to be annotated before comparison. Therefore annotator labels are required. Please provide `--annotator-labels_path` and `category-id-is-line` (if necessary) and restart the script.')
         except Exception as e:
                 print('Exception: {}'.format(str(e)), file=sys.stderr)
                 sys.exit(1)
@@ -245,7 +245,7 @@ if __name__ == '__main__':
                         provide path to file containing `category_id labels` corresponding to annotations/data.json (e.g., labels/aau.customnames)
                         ''')
     parser.add_argument('--category-id-is-line', action='store_true', 
-                        help='enable if `--labels-path` contains `labels` and the line number equals the `category_id`')
+                        help='enable if `--annotator-labels-path` is a file containing labels and the line number equals the `category_id` (e.g., labels/coco.names)')
     parser.add_argument('--image-ids', nargs='*', # nargs: creates a list; 0 or more values expected
                         help='''
                         ID list of images used for object detection and plotting of annotations (e.g., --image_ids 2 4 8 16 32).

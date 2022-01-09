@@ -22,7 +22,7 @@ from lib.base import (init_output_path, get_image_paths, get_img_ids_from_argume
 '''
 def plot():
     recordings_path, image_ids, segmentation, annotator, labels_fpath, category_id_is_line = \
-    opt.recordings_path, opt.image_ids, opt.segmentation, opt.annotator, opt.labels_path, opt.category_id_is_line
+    opt.recordings_path, opt.image_ids, opt.segmentation, opt.annotator, opt.annotator_labels_path, opt.category_id_is_line
 
     # get all recording paths
     recording_paths = get_subdir_paths(recordings_path)
@@ -34,7 +34,7 @@ def plot():
     labels = load_labels(labels_fpath) if category_id_is_line else load_custom_labels(labels_fpath)
 
     # plot recording wise
-    for rec_id, recording_path in enumerate(recording_paths):   
+    for i, recording_path in enumerate(recording_paths):   
         # init filepaths for current recording
         coco_path = os.path.join(recording_path, 'output')
         all_img_paths = get_image_paths(coco_path)
@@ -50,7 +50,7 @@ def plot():
         coco_annotation_data = load_json(coco_annotation_data_fpath)
         image_ids = get_img_ids_from_arguments(image_ids, len(all_img_paths), '--image_ids')
 
-        # plot annotations to all images of recording `rec_id`
+        # plot annotations to all images of recording `i`
         for img_id in image_ids:
             # get annotations and image path
             id_img_path = get_id_img_path(img_id, all_img_paths)
@@ -63,9 +63,9 @@ def plot():
             # plot all annotations for image
             _ = image_plot_annotations(id_img_path, id_img_annotations, colors, labels, annotator, segmentation, out=a_images_output_path, img_id=img_id)
             
-            print('Annotated images saved (recording: %s)' % rec_id)
+            print('Annotated images saved for recording #%s)' % i)
 
-    print('Done annotating COCO data format data recordings (%s)' % a_images_output_path)
+    print('Done annotating for all %s recordings.' % len(recording_paths))
 
 
 if __name__ == '__main__':
@@ -90,11 +90,11 @@ if __name__ == '__main__':
                         ''')
     parser.add_argument('--segmentation', action='store_true',
                         help='enable binary segmentation mask in the output')
-    parser.add_argument('--labels-path', type=str, required=True, help='''
+    parser.add_argument('--annotator-labels-path', type=str, required=True, help='''
                         path to file containing `category_id labels` corresponding to annotations/data.json (e.g., labels/aau.customnames)
                         ''')
     parser.add_argument('--category-id-is-line', action='store_true', 
-                        help='enable if `--labels-path` contains `labels` and the line number equals the `category_id`')
+                        help='enable if `--annotator-labels-path` is a file containing labels and the line number equals the `category_id` (e.g., labels/coco.names)')
     opt = parser.parse_args()
     print(opt)
 

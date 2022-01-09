@@ -47,7 +47,7 @@ def plot_compare():
         sys.exit(1)
 
     # compare recording wise
-    for rec_id, recording_path in enumerate(recording_paths):   
+    for i, recording_path in enumerate(recording_paths):   
 
         # init filepaths for current recording
         coco_path = os.path.join(recording_path, 'output')
@@ -57,9 +57,9 @@ def plot_compare():
 
         try: # detect status check
             if image_ids is None and detect_images:
-                raise AttributeError('No detected images found for recording %s. Missing `--image_ids` argument to perform object detection.' % rec_id)
+                raise AttributeError('No detected images found for recording %s. Missing `--image_ids` argument to perform object detection.' % i)
             if weights is None and detect_images:
-                raise AttributeError('No detected_images/data.json file found for recording %s. Missing `--weights` argument to perform object detection.' % rec_id)
+                raise AttributeError('No detected_images/data.json file found for recording %s. Missing `--weights` argument to perform object detection.' % i)
         except Exception as e:
                 print('Exception: {}'.format(str(e)), file=sys.stderr)
                 sys.exit(1)
@@ -153,7 +153,7 @@ def plot_compare():
         if plot_annotation:
             try: # labels path check
                 if labels_fpath is None:
-                    raise AttributeError('Data needs to be annotated before comparison. Therefore annotator labels are required. Please provide `--labels_path` and `category-id-is-line` (if necessary) and restart the script.')
+                    raise AttributeError('Data needs to be annotated before comparison. Therefore annotator labels are required. Please provide `--annotator-labels_path` and `category-id-is-line` (if necessary) and restart the script.')
             except Exception as e:
                     print('Exception: {}'.format(str(e)), file=sys.stderr)
                     sys.exit(1)
@@ -238,9 +238,10 @@ def plot_compare():
                 json.dump(data, outfile)
             print('Comparison results file saved (%s)' % json_path)
 
-        print('Done saving compared images for recording %s (%s)' % (rec_id, save_path))
+        print('Done saving compared images for recording #%s (%s)' % (i, save_path))
     
-    print('Done comparing images for recording %s' % rec_id)
+    print('Done comparing for all %s recordings.' % len(recording_paths))
+    
     return
 
 
@@ -264,7 +265,7 @@ if __name__ == '__main__':
                         provide path to file containing `category_id labels` corresponding to annotations/data.json (e.g., labels/aau.customnames)
                         ''')
     parser.add_argument('--category-id-is-line', action='store_true', 
-                        help='enable if `--labels-path` contains `labels` and the line number equals the `category_id`')
+                        help='enable if `--annotator-labels-path` is a file containing labels and the line number equals the `category_id` (e.g., labels/coco.names)')
     parser.add_argument('--image-ids', nargs='*', # nargs: creates a list; 0 or more values expected
                         help='''
                         ID list of images used for object detection and plotting of annotations (e.g., --image_ids 2 4 8 16 32).
