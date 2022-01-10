@@ -32,9 +32,9 @@ from lib.base import load_json, calc_add_rmatrix
             annotations[N]/camera_pose/rotation[3]
             annotations[N]/relative_pose/rotation[3]
 '''
-def store():
+def append():
     # calculate and add rotation matrix to existing data or save a new file including the rotation matrix
-    annotation_data_fpath, in_place = opt.annotation_data_path, opt.add_rotation_matrix
+    annotation_data_fpath, in_place = opt.annotation_data_path, opt.append_to_existing
 
     try: # annotation_data file path check
         if not os.path.isfile(annotation_data_fpath):
@@ -62,8 +62,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Takes quaternions stored in a COCO data format annotation file to calculate the rotation matrix, add to the annotation data and save a new file')
     parser.add_argument('--annotation-data-path', type=str, required=True,
                         help='(File)path to the COCO data format annotation `*.json` file, containing `object_pose`, `camera_pose` and `relative_pose` defined by quaternions')
-    parser.add_argument('--add-rotation-matrix', action='store_true', help='add rotation matrix to existing `*.json` file given by `--annotation-data-path`')
+    parser.add_argument('--append-to-existing', action='store_true', help='add rotation matrix to existing `*.json` file given by `--annotation-data-path`')
     opt = parser.parse_args()
     print(opt)
 
-    store()
+    append()

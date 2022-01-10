@@ -39,9 +39,9 @@ from lib.base import load_json, calc_add_rmatrix, get_subdir_paths
             annotations[N]/camera_pose/rotation[3]
             annotations[N]/relative_pose/rotation[3]
 '''
-def store():
+def append():
     # calculate and add rotation matrix to existing data or save a new file including the rotation matrix
-    recordings_path, annotation_json_name, in_place = opt.recordings_path, opt.annotation_json_name, opt.add_rotation_matrix
+    recordings_path, annotation_json_name, in_place = opt.recordings_path, opt.annotation_json_name, opt.append_to_existing
 
     # get all recording paths
     recording_paths = get_subdir_paths(recordings_path)
@@ -86,8 +86,8 @@ if __name__ == '__main__':
                         containing a COCO data format annotation `.json` file specified by `--annotation-json-name`
                         ''')
     parser.add_argument('--annotation-json-name', type=str, required=True, help='Json annotation filename (e.g., `data.bag` or just `data`)')
-    parser.add_argument('--add-rotation-matrix', action='store_true', help='add rotation matrix to existing `*.json` file found in `recordings-path/output/annotations/annotation-json-name.json` ')
+    parser.add_argument('--append-to-existing', action='store_true', help='add rotation matrix to existing `*.json` file found in `recordings-path/output/annotations/annotation-json-name.json` ')
     opt = parser.parse_args()
     print(opt)
 
-    store()
+    append()

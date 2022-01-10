@@ -42,9 +42,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--opt-annotation-data-path",
-                "../OptiTrack_recordings_jul21_rsg_1_output/annotations/data.json",
+                "../OptiTrack_recordings_jan22_7_minimal/annotations/data.json",
                 "--det-annotation-data-path",
-                "../OptiTrack_recordings_jul21_rsg_1_output/detected_images/data.json",
+                "../OptiTrack_recordings_jan22_7_minimal/detected_images/data.json",
                 "--BCcam-path",
                 "extrinsics/calib_trans_OptiTrack_recordings_jul21.yaml",
                 "--image-ids",
@@ -71,29 +71,29 @@
             ]
         },
         {
-            "name": "Python: store-rmatrix-json",
+            "name": "Python: append-rmatrix-json",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/store_rotation_matrix_annotation_data.py",
+            "program": "${workspaceFolder}/append_rotation_matrix_annotation_data.py",
             "console": "integratedTerminal",
             "args": [
                 "--annotation-data-path",
-                "../OptiTrack_recordings_jul21_r_1_output/annotations/data.json",
-                "--add-rotation-matrix"
+                "../OptiTrack_recordings_jan22_7_minimal/annotations/data.json",
+                "--append-to-existing"
             ]
         },
         {
-            "name": "Python: store-rmatrix-json-multrec",
+            "name": "Python: append-rmatrix-json-multrec",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/store_rotation_matrix_annotation_data_multrec.py",
+            "program": "${workspaceFolder}/append_rotation_matrix_annotation_data_multrec.py",
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_rsg",
+                "../OptiTrack_recordings_jan22_minimal",
                 "--annotation-json-name",
                 "data.json",
-                "--add-rotation-matrix"
+                "--append-to-existing"
             ]
         },
         {
