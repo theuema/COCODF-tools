@@ -49,8 +49,8 @@ def gen_images_copy(all_img_paths: list, output_path):
 
     for img_path in all_img_paths:
         # copy 
-        id_img = cv2.imread(img_path)
-        id_copied_img = copy.deepcopy(id_img)
+        img = cv2.imread(img_path)
+        id_copied_img = copy.deepcopy(img)
 
         # save
         save_path = str(Path(output_path) / Path(img_path).name) 

@@ -4,7 +4,7 @@ import os
 import numpy as np
 from pathlib import Path
 
-from lib.write_pose_files import write_2D_position, write_3D_pose, write_3D_position, write_3D_orientation_rot
+from lib.write_rsg_files import write_2D_position, write_3D_pose, write_3D_position, write_3D_orientation_rot
 from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, load_B_C, quat2rot
 
 '''
@@ -13,7 +13,7 @@ from lib.base import init_output_path, load_json, get_img_ids_from_arguments, ge
     ./recordings_path
         ./recordings_path/N/
             ./recordings_path/1/coco_output/annotations/
-                ./recordings_path/1/coco_output/annotations/opt-annotation-json-name.json
+                ./recordings_path/1/coco_output/annotations/ann-annotation-json-name.json
                 ./recordings_path/1/coco_output/detected_images/det-annotation-json-name.json
         ...
     
@@ -36,7 +36,7 @@ from lib.base import init_output_path, load_json, get_img_ids_from_arguments, ge
 '''
 
 def transform():
-    recordings_path, opt_annotation_json_name, det_annotation_json_name, image_ids, B_C_fpath = opt.recordings_path, opt.opt_annotation_json_name, opt.det_annotation_json_name, opt.image_ids, opt.BCcam_path
+    recordings_path, ann_annotation_json_name, det_annotation_json_name, image_ids, B_C_fpath = opt.recordings_path, opt.ann_annotation_json_name, opt.det_annotation_json_name, opt.image_ids, opt.BCcam_path
     
     # get all recording paths
     recording_paths = get_subdir_paths(recordings_path)
@@ -47,23 +47,23 @@ def transform():
 
     for recording_path in recording_paths: 
         # init (file)paths for current recording
-        opt_annotation_data_fpath = str(Path(recording_path) / 'output' / 'annotations' / Path(opt_annotation_json_name).with_suffix('')) + '.json'
+        ann_annotation_data_fpath = str(Path(recording_path) / 'output' / 'annotations' / Path(ann_annotation_json_name).with_suffix('')) + '.json'
         det_annotation_data_fpath = str(Path(recording_path) / 'output' / 'detected_images' / Path(det_annotation_json_name).with_suffix('')) + '.json'
         
         try: # annotation_data file path check
-            if not os.path.isfile(opt_annotation_data_fpath):
-                raise AttributeError('Optitrack annotation file not found in recording data.')
+            if not os.path.isfile(ann_annotation_data_fpath):
+                raise AttributeError('Annotator annotation file not found in recording data.')
             if not os.path.isfile(det_annotation_data_fpath):
                 raise AttributeError('Object-detection annotation file not found in recording data.')
         except Exception as e:
                 print('Exception: {}'.format(str(e)), file=sys.stderr)
-                print('File not found (%s)' % opt_annotation_data_fpath)
+                print('File not found (%s)' % ann_annotation_data_fpath)
                 sys.exit(1)
 
-        opt_coco_annotation_data = load_json(opt_annotation_data_fpath)
+        opt_coco_annotation_data = load_json(ann_annotation_data_fpath)
         det_coco_annotation_data = load_json(det_annotation_data_fpath)
         B_C = load_B_C(B_C_fpath) 
-        save_path = str(Path(opt_annotation_data_fpath).parent / 'rsg')
+        save_path = str(Path(ann_annotation_data_fpath).parents[1] / 'rsg')
         init_output_path(save_path)
 
         # get image_ids for which coco annotation data is transformed to RSG data
@@ -158,7 +158,7 @@ if __name__ == '__main__':
                         OptiTrack_recordings/1/output/annotations/*.json ... OptiTrack_recordings/N/output/annotations/*.json
                         containing a COCO data format annotation `.json` file specified by `--annotation-json-name`
                         ''')
-    parser.add_argument('--opt-annotation-json-name', type=str, required=True, help='Optitrack annotation json filename (e.g., `data.json` or just `data`)')
+    parser.add_argument('--ann-annotation-json-name', type=str, required=True, help='Annotator (manual) annotation json filename (e.g., `data.json` or just `data`)')
     parser.add_argument('--det-annotation-json-name', type=str, required=True, help='Object-detector annotation json filename (e.g., `xyz.json` or just `xyz`)')
     parser.add_argument('--image-ids', nargs='*', # nargs: creates a list; 0 or more values expected
                         help='''

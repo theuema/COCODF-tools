@@ -54,9 +54,9 @@ def gen_180_rotated_images(all_img_paths: list, output_path):
     # rotate and store all images to `output_path/images`
     for img_path in all_img_paths:
         # rotate
-        id_img = cv2.imread(img_path)
-        id_rotated_img = copy.deepcopy(id_img)
-        cv2.rotate(id_img, cv2.ROTATE_180, id_rotated_img)
+        img = cv2.imread(img_path)
+        id_rotated_img = copy.deepcopy(img)
+        cv2.rotate(img, cv2.ROTATE_180, id_rotated_img)
 
         # save
         save_path = str(Path(output_path) / Path(img_path).name) 
