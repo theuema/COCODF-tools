@@ -4,8 +4,8 @@ import os
 import numpy as np
 from pathlib import Path
 
-from lib.write_rsg_files import write_2D_position, write_3D_pose, write_3D_position, write_3D_orientation_rot
-from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, load_B_C, quat2rot
+from lib.write_rsg_files import write_cl, write_enh, write_txt 
+from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, quat2rot, get_image_annotation_object_center, calc_camera_plane
 
 '''
     :Takes COCO data format annotation json file from recordings specified by `--recordings-path` and `--annotation-json-name`
@@ -28,11 +28,11 @@ from lib.base import init_output_path, load_json, get_img_ids_from_arguments, ge
             annotations/1...N/camera_pose/quaterion[4] (camera pose quaternion)
             annotations/1...N/camera_pose/rotation[9] (camera pose rotation matrix)
             annotations/1...N/bbox[4] (bbox of the annotated object of the 2D image plane in COCO format)
-    :Saves: the following files to a new directory `rsg/` next to the json file specified by `--annotation-data-path`
-         - 0000000Image_ID_3D-pose-cam.txt: (1 file per image/frame, rows #1) the complete pose of the camera (XYZ, rotation matrix, quaternion) for a given image/frame
-         - 0000000Image_2D-pos-objects-opt.cl: (1 file per image/frame, rows: #N annotations) the object/category ID + center point (XY) of all objects visible in the image/frame with id Image_ID
-         - 0000000Image_2D-pos-objects-det.cl: (1 file per image/frame, rows: #N annotations) the object/category ID + center point (XY) of all objects detected in the image/frame with id Image_ID
-         - 3D-pose-objects.enh: (1 file per recording, rows: rows: #N tracked objects) the object/category ID + complete pose of all tracked objects (static objects 'digital twin')
+    :Saves: the following files to a new directory `rsg/` in recording root 
+         - rsg/CPOSs.txt (Camera Positions):        (1 file per recording, rows #image_ids)             the complete pose of the camera for an image/frame              (ImageId;X;Y;Z;Rm00;Rm01;Rm02;Rm10;Rm11;Rm12;Rm20;Rm21;Rm22;ImageName)
+         - rsg/GCPs.enh (Ground Control Points):    (1 file per recording, rows: #N tracked objects)    the positions of all tracked objects in W 'digital twin'        (Id;E;N;H;SigE;SigN;SigH;Status;Comment)
+         - rsg/cl_ann/image_name.cl:                (1 file per image, rows: #N annotated annotations)  the center points of the annotated bounding boxes in the image  (Id;C;L;Status;SigImg) 
+         - rsg/cl_det/image_name.cl:                (1 file per image, rows: #N detected annotations)   the center points of the detected bounding boxes in the image   (Id;C;L;Status;SigImg) 
 '''
 
 def transform():
@@ -50,101 +50,106 @@ def transform():
         ann_annotation_data_fpath = str(Path(recording_path) / 'output' / 'annotations' / Path(ann_annotation_json_name).with_suffix('')) + '.json'
         det_annotation_data_fpath = str(Path(recording_path) / 'output' / 'detected_images' / Path(det_annotation_json_name).with_suffix('')) + '.json'
         
+        # init (file)paths
         try: # annotation_data file path check
             if not os.path.isfile(ann_annotation_data_fpath):
-                raise AttributeError('Annotator annotation file not found in recording data.')
-            if not os.path.isfile(det_annotation_data_fpath):
-                raise AttributeError('Object-detection annotation file not found in recording data.')
+                raise AttributeError('File given to `--opt-annotation-data-path` does not exist.')
+            if not os.path.isfile(det_annotation_data_fpath): # detection_data file path check
+                raise AttributeError('File given to `--det-annotation-data-path` does not exist.')
+            if not os.path.isfile(B_C_fpath): # BCcam_path file path check
+                raise AttributeError('File given to `--BCcam_path` does not exist.')
         except Exception as e:
                 print('Exception: {}'.format(str(e)), file=sys.stderr)
-                print('File not found (%s)' % ann_annotation_data_fpath)
                 sys.exit(1)
 
-        opt_coco_annotation_data = load_json(ann_annotation_data_fpath)
+        ann_coco_annotation_data = load_json(ann_annotation_data_fpath)
         det_coco_annotation_data = load_json(det_annotation_data_fpath)
-        B_C = load_B_C(B_C_fpath) 
         save_path = str(Path(ann_annotation_data_fpath).parents[1] / 'rsg')
         init_output_path(save_path)
 
-        # get image_ids for which coco annotation data is transformed to RSG data
-        image_ids = get_img_ids_from_arguments(image_ids, len(opt_coco_annotation_data['images']), '--image_ids')
-        # get image_dicts from annotation data
-        image_dicts = opt_coco_annotation_data['images']
+        # get image_ids for which annotation data is transformed to RSG data
+        image_ids = get_img_ids_from_arguments(image_ids, len(ann_coco_annotation_data['images']), '--image_ids')
 
+        # Annotator annotation run
+        # CL: calculate 2D object center coordinates from annotator annotations
+        # ENH: get 3D world plane position from annotator annotations 
+        # TXT: calculate camera position (= camera plane camera center position) and camera rotation (= rotation from world plane W to camera plane C) from annotator annotations
         category_ids = []
-        image_names = []
-        # go through all annotations and store separate files for each image example
-        for annotation in opt_coco_annotation_data['annotations']: 
+        image_fnames = []
+        cl_object_center_2D_dicts = []
+        enh_object_positions_3D_dict = {}
+        txt_C_camera_pose_dict = {}
+        ann_image_dicts = ann_coco_annotation_data['images']
+        for annotation in ann_coco_annotation_data['annotations']: 
             # get corresponding image
-            image = next((image for image in image_dicts if image['id'] == annotation['image_id']), None)
+            image = next((image for image in ann_image_dicts if image['id'] == annotation['image_id']), None)
             if image is None:
                 print('Error: Image ID not found in images (%s)', annotation['image_id'])
                 sys.exit(1)
-            image_name = str(Path(image['file_name']).stem)
+            image_fname = str(Path(image['file_name']))
 
-            # create image specific data (non-static: 3D camera position, 2D object coordinates)
-            if annotation['image_id'] in image_ids: # len(annotations) times each image
-                # write/append 2D object coordinates of their center (.CL file)
-                cl_path = os.path.join(save_path, image_name + '_2D-pos-objects-opt' + '.cl')
-                write_2D_position(cl_path, annotation['bbox'], mode='a', category_id=annotation['category_id'])
-            
-                if image_name not in image_names: # only 1x each image (= 3D camera-plane frame for one image)
-                    # Extract rotation and translation from B->C, where "C_rb" = "Crb" = camera-rigid-body = B
-                    R_bc = B_C[:3, :3]  # rotation from C_rb to C_plane # R_bc = np.matmul(rot_z(180),rot_x(90))
-                    t_bc = B_C[:3, 3:]  # translation from C_rb to C_plane
+            category_id = int(annotation['category_id'])
+            image_id = int(annotation['image_id'])
 
-                    Q_Crb = annotation['camera_pose']['quaternion'] # Quaternion_Crb
-                    P_Crb = np.array(annotation['camera_pose']['position']).reshape(1,3) # Position_Crb - camera center in world coordinates
-                    R_Crb = quat2rot(Q_Crb) # Rotation_Crb - rotation matrix whose columns are the directions of the world axes in the camera's reference frame
-                    # translate camera-rigid-body frame (C_rb) to match camera frame (C_plane)
-                    R_Cplane = np.matmul(R_Crb, R_bc) # R the new rotation matrix for the image plane
-                    P_Cplane = P_Crb.T + np.matmul(R_Crb, t_bc) # C the new camera center in world coordinates
+            if image_id in image_ids: # len(annotations) times each image
+                # CL: create image specific data - annotator 2D object center-, or better bounding box center coordinates
+                object_center_2D = get_image_annotation_object_center(annotation['bbox'])
+                cl_object_center_2D_dicts.append({'category_id': category_id, 'object_center_2D': object_center_2D, 'image_fname': image_fname}) 
+
+                # TXT: calculate camera position & rotation in camera plane 
+                if image_fname not in image_fnames: # 1x each image (= camera position (W) and rotation (W->C) for each image)
+                    # get rotation from world coordinates to camera plane (R_wc)
+                    # get the camera center position in world coordinates (t_wc)
                     
-                    # write/append 3D camera-plane position and camera-plane orientation for image (text file)
-                    txt_path = os.path.join(save_path, image_name + '_3D-pose-cam' + '.txt')
-                    enc = 'X Y Z rm00 rm01 rm02 rm10 rm11 rm12 rm20 rm21 rm22' # "rm" denotes 3x3 "rotation matrix rm01 = row 0 column 1"
+                    Q_wb = annotation['camera_pose']['quaternion']
+                    R_wb = np.asarray(quat2rot(Q_wb)) # R_wb rotation from world plane to camera (rigid) body plane B
+                    t_wb = np.array(annotation['camera_pose']['position']).reshape(1,3) # t_wb position of camera body in world coordinates
+                    R_wc, t_wc = calc_camera_plane(B_C_fpath, R_wb, t_wb)
+                    
+                    txt_C_camera_pose_dict[image_id] = {'position': t_wc, 'rotation': R_wc, 'image_fname': image_fname}
+                    image_fnames.append(image_fname)
 
-                    # write camera-plane position
-                    if os.path.isfile(txt_path): 
-                        write_3D_position(txt_path, P_Cplane.T.flatten().tolist(), mode='a')
-                    else: # / add encoding information in first line
-                        write_3D_position(txt_path, P_Cplane.T.flatten().tolist(), mode='a', enc=enc)
-
-                    # write camera-plane orientation
-                    write_3D_orientation_rot(txt_path, R_Cplane, mode='a', linebreak=True)
-
-                    image_names.append(image_name)
-
-            # write/append static data (static: 3D object coordinates for the physical model that is not moved during the recording process)
-            if annotation['category_id'] not in category_ids: # len(objects) times (number of objects/categories from the dataset)
-                # write 3D object position, rotation matrix and quaternions from a (physically) static model (.ENH file)
-                enh_path = os.path.join(save_path, '3D-pose-objects' + '.enh')
-                enc = 'X Y Z rm00 rm01 rm02 rm10 rm11 rm12 rm20 rm21 rm22 c xs ys zs' # "rm" denotes 3x3 "rotation matrix rm01 = row 0 column 1"; "c xs ys zs" denotes the corresponding quaternion
-                if os.path.isfile(enh_path): 
-                    write_3D_pose(enh_path, annotation['object_pose'], mode='a', category_id=annotation['category_id'])
-                else: # / add encoding information in first line
-                    write_3D_pose(enh_path, annotation['object_pose'], mode='a', enc=enc, category_id=annotation['category_id'])
+            # ENH: create static object data (static: 3D object coordinates for the physical model that is not moved during the recording process)
+            # object_poses through images slightly deviate, due to the accuracy of the tracking system
+            # TODO: Might be an idea to gather every single object_pose from every image/frame and take the mean value 
+            if category_id not in category_ids: # len(objects) times (number of objects/categories from the recording)
+                enh_object_positions_3D_dict[category_id] = annotation['object_pose']['position']
                 category_ids.append(annotation['category_id'])
 
-        # get image_dicts from object-detector annotation data
-        image_dicts = det_coco_annotation_data['images']
-        # go through all annotations from the object detector and store the center of each detected object for subsequent triangulation
+        # write 2D object annotator annotation center coordinates (.CL columnt/line file)
+        init_output_path(save_path + '/cl_ann')
+        write_cl(save_path + '/cl_ann', cl_object_center_2D_dicts)
+        # write 3D object position, rotation matrix and quaternions (object_pose) from a (physically) static model (.ENH file) 
+        write_enh(save_path, enh_object_positions_3D_dict) 
+        # write 3D camera position of camera plane
+        write_txt(save_path, txt_C_camera_pose_dict)
+        
+        # Object detection run 
+        # CL: calculate 2D object center coordinates from object detection - 2D BB centers (.cl file)
+        cl_object_center_2D_dicts = []
+        det_image_dicts = det_coco_annotation_data['images']
         for annotation in det_coco_annotation_data['annotations']:
             # get corresponding image
-            image = next((image for image in image_dicts if image['id'] == annotation['image_id']), None)
+            image = next((image for image in det_image_dicts if image['id'] == annotation['image_id']), None)
             if image is None:
                 print('Error: Image ID not found in images (%s)', annotation['image_id'])
                 sys.exit(1)
-            image_name = str(Path(image['file_name']).stem)
+            image_fname = str(Path(image['file_name']).stem)
 
-            # create image specific data - object-detector annotation centers
-            if annotation['image_id'] in image_ids: # len(annotations) times each image 
-                # write/append 2D object object-detector (e.g. yolo) coordinates of their center (.CL file)
-                cl_path = os.path.join(save_path, image_name + '_2D-pos-objects-det' + '.cl')
-                write_2D_position(cl_path, annotation['bbox'], mode='a', category_id=annotation['category_id'])
+            category_id = int(annotation['category_id'])
+            image_id = int(annotation['image_id'])
 
-        print('Done writing position/pose data for RSG (%s)' % save_path)  #f.write(('%g ' * 5 + '\n') % (cls, *xywh))
-        print('Data transformed for images ', image_names)
+            # CL: create image specific data - object-detector annotation center coordinates
+            if image_id in image_ids: # len(annotations) times each image 
+                object_center_2D = get_image_annotation_object_center(annotation['bbox'])
+                cl_object_center_2D_dicts.append({'category_id': category_id, 'object_center_2D': object_center_2D, 'image_fname': image_fname}) 
+
+        # write 2D object object detection annotation center coordinates (.CL columnt/line file)
+        init_output_path(save_path + '/cl_det')
+        write_cl(save_path + '/cl_det', cl_object_center_2D_dicts)
+
+        print('Done writing position/pose data for RSG (%s)' % save_path)
+        print('Data transformed for images ', image_fnames)
     
     print('Done writing position/pose data for all recordings (%s)' % recording_path)
 
@@ -156,7 +161,7 @@ if __name__ == '__main__':
                         path to the dataset directory containing multiple recording folders 1/ ... N/
                         e.g., `--recordings-path ../OptiTrack_recordings` where multiple recording folders exist: 
                         OptiTrack_recordings/1/output/annotations/*.json ... OptiTrack_recordings/N/output/annotations/*.json
-                        containing a COCO data format annotation `.json` file specified by `--annotation-json-name`
+                        containing a COCO data format annotation `.json` file specified by `--*-annotation-json-name`
                         ''')
     parser.add_argument('--ann-annotation-json-name', type=str, required=True, help='Annotator (manual) annotation json filename (e.g., `data.json` or just `data`)')
     parser.add_argument('--det-annotation-json-name', type=str, required=True, help='Object-detector annotation json filename (e.g., `xyz.json` or just `xyz`)')

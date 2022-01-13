@@ -122,8 +122,8 @@ def get_distorted_image_paths(coco_dir):
     return sorted(glob(os.path.join(coco_dir, 'distorted_images/*.png')))
 
 def get_subdir_paths(dir):
-    # return a list of all subdir paths of a given directory
-    return sorted(glob(os.path.join(dir, '*/')))
+    # return a list of all subdir paths of a given directory, but exclude folders starting with '_'
+    return sorted(glob(os.path.join(dir, '[!_]*/')))
 
 def get_annoation_data_fpath(coco_dir):
     # return file path to coco_annotation_data (annotations/data.json)
@@ -132,6 +132,10 @@ def get_annoation_data_fpath(coco_dir):
 def get_yolo_data_fpath(coco_dir):
     # return file path to coco_annotation_data (annotations/data.json)
     return os.path.join(coco_dir, 'detected_images/data.json')
+
+def get_cl_fpaths(dir):
+    # return a list of all .cl file paths in a given directory
+    return sorted(glob(os.path.join(dir, '*.cl')))
 
 def check_img_id_type_value(img_id, num_images: int, arg_name: str):
     try: 

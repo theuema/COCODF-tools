@@ -5,6 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: combine-multirec-for-RSG",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/combine_multirec_for_RSG.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--recordings-path",
+                "../OptiTrack_recordings_jan22_minimal",
+                "--cl-ann",
+                "--cl-det",
+                "--output-path",
+                "../OptiTrack_recordings_jan22_minimal/_rsg_combined"
+            ]
+        },
+        {
             "name": "Python: fix-categories_annotations-coco",
             "type": "python",
             "request": "launch",
@@ -61,7 +76,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_rsg",
+                "../OptiTrack_recordings_jan22_minimal",
                 "--ann-annotation-json-name",
                 "data.json",
                 "--det-annotation-json-name",
@@ -201,9 +216,7 @@
                 "labels/coco.names",
                 "--category-id-is-line",
                 "--image-ids",
-                "1",
-                "8",
-                "18"
+                "8"
             ]
         },
         {
@@ -263,9 +276,7 @@
                 "labels/coco.names",
                 "--category-id-is-line",
                 "--image-ids",
-                "1",
                 "8",
-                "18",
                 "--img-size",
                 "1536",
                 "--augment",
@@ -332,9 +343,7 @@
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--image-ids",
-                "1",
                 "8",
-                "18",
                 "--img-size",
                 "1536",
                 "--augment",

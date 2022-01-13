@@ -129,7 +129,7 @@ def transform():
     init_output_path(save_path + '/cl_det')
     write_cl(save_path + '/cl_det', cl_object_center_2D_dicts)
 
-    print('Done writing position/pose data for RSG (%s)' % save_path)  #f.write(('%g ' * 5 + '\n') % (cls, *xywh))
+    print('Done writing position/pose data for RSG (%s)' % save_path)
     print('Data transformed for images ', image_fnames)
 
 if __name__ == '__main__':
