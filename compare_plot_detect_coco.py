@@ -225,7 +225,7 @@ def plot_compare():
             json.dump(data, outfile)
         print('Comparison results file saved (%s)' % json_path)
 
-    print('Done saving compared images (%s)' % save_path)
+    print('Done saving compared images (%s)' % output_path)
     return
 
 

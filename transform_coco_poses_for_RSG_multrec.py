@@ -165,8 +165,8 @@ if __name__ == '__main__':
                         (optional) ID list of images for which COCO data is extracted and transformed for RSG (e.g., `--image_ids 2 4 8 16 32`);
                         if not passed as an argument data for every image is transformed (assumes consecutive numbering starting with ID 1)
                         ''')
-    parser.add_argument("--BCcam-path", type=str, required=True,
-                        help="Path to the yaml-file containing the camera rigid body transformation matrix")
+    parser.add_argument('--BCcam-path', type=str, required=True,
+                        help='Path to the yaml-file containing the camera rigid body transformation matrix')
     opt = parser.parse_args()
     print(opt)
 

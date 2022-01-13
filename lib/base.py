@@ -337,3 +337,23 @@ def add_coco_style_categories(coco_annotation_data: dict):
 def get_image_annotation_object_center(bbox: list): # from [x2, y2, w, h] to (cx, cy)
     # returns the center point of the object from the associated bounding box (image coordinates top left 0/0)
     return (bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2)
+
+
+def calc_camera_plane(B_C_fpath: str, R_wb, t_wb): 
+    # R_wb: np.array([[rm01, rm02, rm03],[rm11, rm12, rm13],[rm21, rm22, rm23]]) (3x3)
+    # t_wb: np.array([X, Y, Z]) (1x3)
+
+    # calculate rotation from world coordinates to camera plane (R_wc)
+    # calculate the camera center position in world coordinates (t_wc)
+        # can be used for 3D/2D projection when building the extrinsic matrix
+
+    B_C = load_B_C(B_C_fpath)
+    # get rotation from W->B, position of the camera body in W, rotation and translation for B->C 
+    R_bc = B_C[:3, :3]  # rotation from B->C (from extrinsic calibration) 
+    t_bc = B_C[:3, 3:]  # translation from B->C (from extrinsic calibration) 
+    
+    # translate to camera plane
+    R_wc = np.matmul(R_wb, R_bc) # R_wc rotation from world plane W to camera plane C 
+    t_wc = t_wb.T + np.matmul(R_wb, t_bc) # new camera center in world coordinates (referenced to as "C" when dissecting the camera matrix to intrinsic and extrinsic matrix)
+
+    return R_wc, t_wc

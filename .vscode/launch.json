@@ -41,14 +41,16 @@
             "program": "${workspaceFolder}/transform_coco_poses_for_RSG.py",
             "console": "integratedTerminal",
             "args": [
-                "--opt-annotation-data-path",
+                "--ann-annotation-data-path",
                 "../OptiTrack_recordings_jan22_7_minimal/annotations/data.json",
                 "--det-annotation-data-path",
                 "../OptiTrack_recordings_jan22_7_minimal/detected_images/data.json",
                 "--BCcam-path",
                 "extrinsics/calib_trans_OptiTrack_recordings_jul21.yaml",
                 "--image-ids",
-                "8"
+                "1",
+                "8",
+                "18"
             ]
         },
         {
@@ -60,7 +62,7 @@
             "args": [
                 "--recordings-path",
                 "../OptiTrack_recordings_jul21_rsg",
-                "--opt-annotation-json-name",
+                "--ann-annotation-json-name",
                 "data.json",
                 "--det-annotation-json-name",
                 "data.json",
@@ -180,8 +182,8 @@
                 "--category-id-is-line",
                 "--image-ids",
                 "1",
-                "6",
-                "16"
+                "8",
+                "18"
             ]
         },
         {
@@ -200,8 +202,8 @@
                 "--category-id-is-line",
                 "--image-ids",
                 "1",
-                "6",
-                "16"
+                "8",
+                "18"
             ]
         },
         {
@@ -224,8 +226,8 @@
                 "--category-id-is-line",
                 "--image-ids",
                 "1",
-                "6",
-                "16",
+                "8",
+                "18",
                 "--img-size",
                 "1536",
                 "--augment",
@@ -262,8 +264,8 @@
                 "--category-id-is-line",
                 "--image-ids",
                 "1",
-                "6",
-                "16",
+                "8",
+                "18",
                 "--img-size",
                 "1536",
                 "--augment",
@@ -297,8 +299,8 @@
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--image-ids",
                 "1",
-                "6",
-                "16",
+                "8",
+                "18",
                 "--img-size",
                 "1536",
                 "--augment",
@@ -331,8 +333,8 @@
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--image-ids",
                 "1",
-                "6",
-                "16",
+                "8",
+                "18",
                 "--img-size",
                 "1536",
                 "--augment",
@@ -365,7 +367,7 @@
                 "../OptiTrack_recordings_jul21_r_1_output/annotated_images",
                 "--image-ids",
                 "1",
-                "6",
+                "8",
                 "18"
             ]
         },
