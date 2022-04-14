@@ -12,11 +12,11 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jan22_minimal",
+                "../OptiTrack_recordings_jul21_minimal",
                 "--cl-ann",
                 "--cl-det",
                 "--output-path",
-                "../OptiTrack_recordings_jan22_minimal/_rsg_combined"
+                "../OptiTrack_recordings_jul21_minimal/_rsg_combined"
             ]
         },
         {
@@ -27,7 +27,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--annotation-data-path",
-                "../OptiTrack_recordings_jan22_7_minimal/annotations/data.json",
+                "../OptiTrack_recordings_jul21_7_minimal/annotations/data.json",
                 "--mapping-path",
                 "labels/aau_coco.mapping",
                 "--deviate",
@@ -42,7 +42,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jan22_minimal",
+                "../OptiTrack_recordings_jul21_minimal",
                 "--mapping-path",
                 "labels/aau_coco.mapping",
                 "--deviate",
@@ -57,9 +57,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--ann-annotation-data-path",
-                "../OptiTrack_recordings_jan22_7_minimal/annotations/data.json",
+                "../OptiTrack_recordings_jul21_7_minimal/annotations/data.json",
                 "--det-annotation-data-path",
-                "../OptiTrack_recordings_jan22_7_minimal/detected_images/data.json",
+                "../OptiTrack_recordings_jul21_7_minimal/detected_images/data.json",
                 "--BCcam-path",
                 "extrinsics/calib_trans_OptiTrack_recordings_jul21.yaml",
                 "--image-ids",
@@ -76,7 +76,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jan22_minimal",
+                "../OptiTrack_recordings_jul21_minimal",
                 "--ann-annotation-json-name",
                 "data.json",
                 "--det-annotation-json-name",
@@ -95,7 +95,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--annotation-data-path",
-                "../OptiTrack_recordings_jan22_7_minimal/annotations/data.json",
+                "../OptiTrack_recordings_jul21_7_minimal/annotations/data.json",
                 "--append-to-existing"
             ]
         },
@@ -107,7 +107,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jan22_minimal",
+                "../OptiTrack_recordings_jul21_minimal",
                 "--annotation-json-name",
                 "data.json",
                 "--append-to-existing"
@@ -121,13 +121,13 @@
             "console": "integratedTerminal",
             "args": [
                 "--recording-path",
-                "../OptiTrack_recordings_jan22_7",
+                "../OptiTrack_recordings_jul21_7",
                 "--image-bag-name",
                 "camera_animals_full_closest_sync.bag",
                 "--image-bag-topic",
                 "/synchronizer/rgb_undistort",
                 "--output-path",
-                "../OptiTrack_recordings_jan22_7",
+                "../OptiTrack_recordings_jul21_7",
                 "--camera-yaml",
                 "intrinsics/calib_file_fullres_drop.yaml",
             ]
@@ -140,13 +140,13 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jan22",
+                "../OptiTrack_recordings_jul21",
                 "--image-bag-name",
                 "camera_animals_full_closest_sync.bag",
                 "--image-bag-topic",
                 "/synchronizer/rgb_undistort",
                 "--output-path",
-                "../OptiTrack_recordings_jan22",
+                "../OptiTrack_recordings_jul21",
                 "--camera-yaml",
                 "intrinsics/calib_file_fullres_drop.yaml",
             ]
@@ -159,9 +159,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_jan22_7/output",
+                "../OptiTrack_recordings_jul21_7/output",
                 "--output-path",
-                "../OptiTrack_recordings_jan22_7_minimal",
+                "../OptiTrack_recordings_jul21_7_minimal",
                 "--unique-img-id"
             ]
         },
@@ -173,9 +173,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jan22",
+                "../OptiTrack_recordings_jul21",
                 "--output-path",
-                "../OptiTrack_recordings_jan22_minimal",
+                "../OptiTrack_recordings_jul21_minimal",
                 "--unique-img-id"
             ]
         },
@@ -187,9 +187,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_jan22_7_minimal",
+                "../OptiTrack_recordings_jul21_7_minimal",
                 "--output-path",
-                "../OptiTrack_recordings_jan22_7_minimal/annotated_images",
+                "../OptiTrack_recordings_jul21_7_minimal/annotated_images",
                 "--annotator",
                 "OptiTrack",
                 "--annotator-labels-path",
@@ -209,7 +209,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jan22_minimal",
+                "../OptiTrack_recordings_jul21_minimal",
                 "--annotator",
                 "OptiTrack",
                 "--annotator-labels-path",
@@ -227,9 +227,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_jan22_7_minimal",
+                "../OptiTrack_recordings_jul21_7_minimal",
                 "--output-path",
-                "../OptiTrack_recordings_jan22_7_minimal/compared_images",
+                "../OptiTrack_recordings_jul21_7_minimal/compared_images",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--annotator",
@@ -267,7 +267,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jan22_minimal",
+                "../OptiTrack_recordings_jul21_minimal",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--annotator",
@@ -303,9 +303,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--coco-path",
-                "../OptiTrack_recordings_jan22_7_minimal",
+                "../OptiTrack_recordings_jul21_7_minimal",
                 "--output-path",
-                "../OptiTrack_recordings_jan22_7_minimal/detected_images",
+                "../OptiTrack_recordings_jul21_7_minimal/detected_images",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--image-ids",
@@ -339,7 +339,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jan22_minimal",
+                "../OptiTrack_recordings_jul21_minimal",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--image-ids",

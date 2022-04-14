@@ -343,21 +343,20 @@ def get_image_annotation_object_center(bbox: list): # from [x2, y2, w, h] to (cx
     return (bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2)
 
 
-def calc_camera_plane(B_C_fpath: str, R_wb, t_wb): 
+def calc_camera_frame(B_C_fpath: str, R_wb, t_wb): 
     # R_wb: np.array([[rm01, rm02, rm03],[rm11, rm12, rm13],[rm21, rm22, rm23]]) (3x3)
     # t_wb: np.array([X, Y, Z]) (1x3)
 
-    # calculate rotation from world coordinates to camera plane (R_wc)
-    # calculate the camera center position in world coordinates (t_wc)
-        # can be used for 3D/2D projection when building the extrinsic matrix
+    # calculate orientation of C in W (R_wc)
+    # get the camera center position in world coordinates (t_wc) (translation from W orign to C origin)
+        # Pose (R_wc, t_wc) be used for 3D/2D projection when building the extrinsic matrix!
 
-    B_C = load_B_C(B_C_fpath)
-    # get rotation from W->B, position of the camera body in W, rotation and translation for B->C 
-    R_bc = B_C[:3, :3]  # rotation from B->C (from extrinsic calibration) 
-    t_bc = B_C[:3, 3:]  # translation from B->C (from extrinsic calibration) 
+    B_C = load_B_C(B_C_fpath) # poses form extrinsic camera calibration
+    R_bc = B_C[:3, :3]  # orientation of C in B (camera frame in camera body frame)
+    t_bc = B_C[:3, 3:]  # translation from B->C (displacement between the origin of B and C) 
     
-    # translate to camera plane
-    R_wc = np.matmul(R_wb, R_bc) # R_wc rotation from world plane W to camera plane C 
-    t_wc = t_wb.T + np.matmul(R_wb, t_bc) # new camera center in world coordinates (referenced to as "C" when dissecting the camera matrix to intrinsic and extrinsic matrix)
+    # translate to camera frame
+    R_wc = np.matmul(R_wb, R_bc) # conduct multiplication from right to left, yielding the orientation of the camera frame C in the reference frame W
+    t_wc = t_wb.T + np.matmul(R_wb, t_bc) # camera frame center in world/reference coordinates 
 
     return R_wc, t_wc

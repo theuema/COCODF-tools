@@ -6,7 +6,7 @@ import numpy as np
 from pathlib import Path
 
 from lib.write_rsg_files import write_cl, write_enh, write_txt 
-from lib.base import init_output_path, load_json, get_img_ids_from_arguments, quat2rot, get_image_annotation_object_center, calc_camera_plane
+from lib.base import init_output_path, load_json, get_img_ids_from_arguments, quat2rot, get_image_annotation_object_center, calc_camera_frame
 
 '''
     :Takes COCO data format annotation json file specified by `--annotation-data-path`
@@ -53,8 +53,8 @@ def transform():
 
     # Annotator annotation run
     # CL: calculate 2D object center coordinates from annotator annotations
-    # ENH: get 3D world plane position from annotator annotations 
-    # TXT: calculate camera position (= camera plane camera center position) and camera rotation (= rotation from world plane W to camera plane C) from annotator annotations
+    # ENH: get 3D world/reference frame position from annotator annotations 
+    # TXT: calculate camera frame origin in W (t_wc) and camera frame orientation in W (R_wc) from annotator annotations
     category_ids = []
     image_fnames = []
     cl_object_center_2D_dicts = []
@@ -77,15 +77,15 @@ def transform():
             object_center_2D = get_image_annotation_object_center(annotation['bbox'])
             cl_object_center_2D_dicts.append({'category_id': category_id, 'object_center_2D': object_center_2D, 'image_fname': image_fname}) 
 
-            # TXT: calculate camera position & rotation in camera plane 
-            if image_fname not in image_fnames: # 1x each image (= camera position (W) and rotation (W->C) for each image)
-                # get rotation from world coordinates to camera plane (R_wc)
-                # get the camera center position in world coordinates (t_wc)
+            # TXT: calculate camera position & rotation in camera frame
+            if image_fname not in image_fnames: # 1x each image (= 1 camera body pose (R_wb, t_wb) each image)
+                # get orientation of C in W (R_wc)
+                # get the camera frame center position in world coordinates (t_wc) (translation from W orign to C origin)
                 
                 Q_wb = annotation['camera_pose']['quaternion']
-                R_wb = np.asarray(quat2rot(Q_wb)) # R_wb rotation from world plane to camera (rigid) body plane B
-                t_wb = np.array(annotation['camera_pose']['position']).reshape(1,3) # t_wb position of camera body in world coordinates
-                R_wc, t_wc = calc_camera_plane(B_C_fpath, R_wb, t_wb)
+                R_wb = np.asarray(quat2rot(Q_wb)) # R_wb = orientation of B (camera body) in W
+                t_wb = np.array(annotation['camera_pose']['position']).reshape(1,3) # t_wb position of camera body in world coordinates (where the origin of B is displaced by t_wb from O of W)
+                R_wc, t_wc = calc_camera_frame(B_C_fpath, R_wb, t_wb)
                 
                 txt_C_camera_pose_dict[image_id] = {'position': t_wc, 'rotation': R_wc, 'image_fname': image_fname}
                 image_fnames.append(image_fname)
@@ -102,7 +102,7 @@ def transform():
     write_cl(save_path + '/cl_ann', cl_object_center_2D_dicts)
     # write 3D object position, rotation matrix and quaternions (object_pose) from a (physically) static model (.ENH file) 
     write_enh(save_path, enh_object_positions_3D_dict) 
-    # write 3D camera position of camera plane
+    # write 3D camera position of camera frame 
     write_txt(save_path, txt_C_camera_pose_dict)
     
     # Object detection run 
