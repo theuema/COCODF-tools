@@ -31,7 +31,7 @@ def rotate():
     r_images_output_path = os.path.join(output_path, 'images')
     init_output_path(r_images_output_path)
     
-    # rotate data
+    # rotate 2D data
     gen_180_rotated_coco_annotation_data(coco_annotation_data_fpath, output_path=r_annotation_data_path, make_img_id_unique=make_img_id_unique)
     gen_180_rotated_images(all_img_paths, output_path=r_images_output_path)
 

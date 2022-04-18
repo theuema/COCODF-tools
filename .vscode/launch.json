@@ -5,6 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: combine-multirec-for-RSG-CPOSs-onefile",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/combine_multirec_for_RSG_CPOSs_onefile.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--recordings-path",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
+                "--cl-ann",
+                "--cl-det",
+                "--output-path",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal/_rsg_combined"
+            ]
+        },
+        {
             "name": "Python: combine-multirec-for-RSG",
             "type": "python",
             "request": "launch",
@@ -12,11 +27,11 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--cl-ann",
                 "--cl-det",
                 "--output-path",
-                "../OptiTrack_recordings_jul21_minimal/_rsg_combined"
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal/_rsg_combined"
             ]
         },
         {
@@ -42,7 +57,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--mapping-path",
                 "labels/aau_coco.mapping",
                 "--deviate",
@@ -76,7 +91,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--ann-annotation-json-name",
                 "data.json",
                 "--det-annotation-json-name",
@@ -107,7 +122,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--annotation-json-name",
                 "data.json",
                 "--append-to-existing"
@@ -140,13 +155,13 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21",
+                "../OptiTrack_recordings_jul21_processed_apr22",
                 "--image-bag-name",
                 "camera_animals_full_closest_sync.bag",
                 "--image-bag-topic",
                 "/synchronizer/rgb_undistort",
                 "--output-path",
-                "../OptiTrack_recordings_jul21",
+                "../OptiTrack_recordings_jul21_processed_apr22",
                 "--camera-yaml",
                 "intrinsics/calib_file_fullres_drop.yaml",
             ]
@@ -173,9 +188,9 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21",
+                "../OptiTrack_recordings_jul21_processed_apr22",
                 "--output-path",
-                "../OptiTrack_recordings_jul21_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--unique-img-id"
             ]
         },
@@ -267,7 +282,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--annotator",

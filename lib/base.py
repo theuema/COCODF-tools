@@ -360,3 +360,9 @@ def calc_camera_frame(B_C_fpath: str, R_wb, t_wb):
     t_wc = t_wb.T + np.matmul(R_wb, t_bc) # camera frame center in world/reference coordinates 
 
     return R_wc, t_wc
+
+
+def perform_custom_camera_frame_rotations(R_wc):
+    R_UD = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]]) # rotation 'UpsideDown' about 180 degrees due to camera orientation rotated during data acquisition
+    R_YZ = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]]) # rotation around x-axis to convert from CV to photogrammetric system (z-axis towards camera frame origin)
+    return R_wc @ R_UD @ R_YZ

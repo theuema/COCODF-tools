@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 
 from lib.write_rsg_files import write_cl, write_enh, write_txt 
-from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, quat2rot, get_image_annotation_object_center, calc_camera_plane
+from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, quat2rot, get_image_annotation_object_center, calc_camera_frame, perform_custom_camera_frame_rotations
 
 '''
     :Takes COCO data format annotation json file from recordings specified by `--recordings-path` and `--annotation-json-name`
@@ -104,9 +104,10 @@ def transform():
                     Q_wb = annotation['camera_pose']['quaternion']
                     R_wb = np.asarray(quat2rot(Q_wb)) # R_wb rotation from world plane to camera (rigid) body plane B
                     t_wb = np.array(annotation['camera_pose']['position']).reshape(1,3) # t_wb position of camera body in world coordinates
-                    R_wc, t_wc = calc_camera_plane(B_C_fpath, R_wb, t_wb)
+                    R_wc, t_wc = calc_camera_frame(B_C_fpath, R_wb, t_wb)
+                    R_wcp = perform_custom_camera_frame_rotations(R_wc)
                     
-                    txt_C_camera_pose_dict[image_id] = {'position': t_wc, 'rotation': R_wc, 'image_fname': image_fname}
+                    txt_C_camera_pose_dict[image_id] = {'position': t_wc, 'rotation': R_wcp, 'image_fname': image_fname}
                     image_fnames.append(image_fname)
 
             # ENH: create static object data (static: 3D object coordinates for the physical model that is not moved during the recording process)
