@@ -15,6 +15,7 @@
                 "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--cl-ann",
                 "--cl-det",
+                "--cl-gtruth",
                 "--output-path",
                 "../OptiTrack_recordings_jul21_processed_apr22_minimal/_rsg_combined"
             ]
@@ -30,6 +31,7 @@
                 "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--cl-ann",
                 "--cl-det",
+                "--cl-gtruth",
                 "--output-path",
                 "../OptiTrack_recordings_jul21_processed_apr22_minimal/_rsg_combined"
             ]
@@ -80,7 +82,10 @@
                 "--image-ids",
                 "1",
                 "8",
-                "18"
+                "18",
+                "--Cam-upsidedown",
+                "--camera-yaml",
+                "intrinsics/calib_file_fullres_drop.yaml"
             ]
         },
         {
@@ -99,7 +104,10 @@
                 "--BCcam-path",
                 "extrinsics/calib_trans_OptiTrack_recordings_jul21.yaml",
                 "--image-ids",
-                "8"
+                "8",
+                "--Cam-upsidedown",
+                "--camera-yaml",
+                "intrinsics/calib_file_fullres_drop.yaml"
             ]
         },
         {

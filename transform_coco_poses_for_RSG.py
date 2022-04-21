@@ -6,7 +6,7 @@ import numpy as np
 from pathlib import Path
 
 from lib.write_rsg_files import write_cl, write_enh, write_txt 
-from lib.base import init_output_path, load_json, get_img_ids_from_arguments, quat2rot, get_image_annotation_object_center, calc_camera_frame, perform_custom_camera_frame_rotations
+from lib.base import init_output_path, load_json, get_img_ids_from_arguments, quat2rot, get_image_annotation_object_center, calc_camera_frame, perform_photogrammetric_camera_frame_rotations, get_perfect_obj_pos_proj, rotate_orientation_upside_down, load_camera_intrinsics
 
 '''
     :Takes COCO data format annotation json file specified by `--annotation-data-path`
@@ -29,7 +29,7 @@ from lib.base import init_output_path, load_json, get_img_ids_from_arguments, qu
 '''
 
 def transform():
-    ann_annotation_data_fpath, det_annotation_data_fpath, image_ids, B_C_fpath = opt.ann_annotation_data_path, opt.det_annotation_data_path, opt.image_ids, opt.BCcam_path
+    ann_annotation_data_fpath, det_annotation_data_fpath, image_ids, B_C_fpath, Cam_upsidedown, camera_yaml = opt.ann_annotation_data_path, opt.det_annotation_data_path, opt.image_ids, opt.BCcam_path, opt.Cam_upsidedown, opt.camera_yaml
     
     # init (file)paths
     try: # annotation_data file path check
@@ -58,6 +58,7 @@ def transform():
     category_ids = []
     image_fnames = []
     cl_object_center_2D_dicts = []
+    cl_perfect_obj_pos_proj_dicts = []
     enh_object_positions_3D_dict = {}
     txt_C_camera_pose_dict = {}
     ann_image_dicts = ann_coco_annotation_data['images']
@@ -77,16 +78,36 @@ def transform():
             object_center_2D = get_image_annotation_object_center(annotation['bbox'])
             cl_object_center_2D_dicts.append({'category_id': category_id, 'object_center_2D': object_center_2D, 'image_fname': image_fname}) 
 
+            # calculate camera position & rotation in camera frame
+            # get rotation from world coordinates to camera frame (R_wc)
+            # get the camera center position in world coordinates (t_wc)
+            Q_wb = annotation['camera_pose']['quaternion']
+            R_wb = np.asarray(quat2rot(Q_wb)) # R_wb rotation from world frame to camera (rigid) body frame B
+            t_wb = np.array(annotation['camera_pose']['position']).reshape(1,3) # t_wb position of camera body in world coordinates
+            R_wc, t_wc = calc_camera_frame(B_C_fpath, R_wb, t_wb)
+
+            # CL: create ground truth object projection
+            # Calculate extrinsics matrix & make homogeneous
+            R_wcextr = rotate_orientation_upside_down(R_wc) if Cam_upsidedown else R_wc
+            extrinsic_mat = np.hstack((R_wcextr.T, -np.matmul(R_wcextr.T, t_wc)))
+            extrinsic_mat = np.vstack((extrinsic_mat, np.array([0, 0, 0, 1])))
+
+            # load intrinsics & make homogeneous
+            intrinsics = load_camera_intrinsics(camera_yaml)
+            intrinsic_mat = np.vstack((intrinsics['intrinsic_matrix'], np.array([0, 0, 0])))
+            intrinsic_mat = np.hstack((intrinsic_mat, np.array([[0], [0], [0], [1]])))
+            
+            # get point & make homogeneous
+            obj_pos = np.append(np.array(annotation['object_pose']['position']), 1).reshape(4,1)
+
+            # project object pos for ground truth 2D C/L projection
+            perfect_obj_pos_proj_2D = get_perfect_obj_pos_proj(extrinsic_mat, intrinsic_mat, obj_pos)
+            cl_perfect_obj_pos_proj_dicts.append({'category_id': category_id, 'object_center_2D': perfect_obj_pos_proj_2D, 'image_fname': image_fname}) 
+
             # TXT: calculate camera position & rotation in camera frame
             if image_fname not in image_fnames: # 1x each image (= 1 camera body pose (R_wb, t_wb) each image)
-                # get orientation of C in W (R_wc)
-                # get the camera frame center position in world coordinates (t_wc) (translation from W orign to C origin)
-                
-                Q_wb = annotation['camera_pose']['quaternion']
-                R_wb = np.asarray(quat2rot(Q_wb)) # R_wb = orientation of B (camera body) in W
-                t_wb = np.array(annotation['camera_pose']['position']).reshape(1,3) # t_wb position of camera body in world coordinates (where the origin of B is displaced by t_wb from O of W)
-                R_wc, t_wc = calc_camera_frame(B_C_fpath, R_wb, t_wb)
-                R_wcp = perform_custom_camera_frame_rotations(R_wc)
+                # generate RSG conform rotation matrix TODO: calculate degrees instead of Rmat
+                R_wcp = perform_photogrammetric_camera_frame_rotations(R_wc, Cam_upsidedown)
 
                 txt_C_camera_pose_dict[image_id] = {'position': t_wc, 'rotation': R_wcp, 'image_fname': image_fname}
                 image_fnames.append(image_fname)
@@ -101,6 +122,9 @@ def transform():
     # write 2D object annotator annotation center coordinates (.CL columnt/line file)
     init_output_path(save_path + '/cl_ann')
     write_cl(save_path + '/cl_ann', cl_object_center_2D_dicts)
+    # write 2D ground truth object projection center coordinates (.CL columnt/line file)
+    init_output_path(save_path + '/cl_gtruh')
+    write_cl(save_path + '/cl_gtruh', cl_perfect_obj_pos_proj_dicts)
     # write 3D object position, rotation matrix and quaternions (object_pose) from a (physically) static model (.ENH file) 
     write_enh(save_path, enh_object_positions_3D_dict) 
     # write 3D camera position of camera frame 
@@ -146,6 +170,8 @@ if __name__ == '__main__':
                         ''')
     parser.add_argument('--BCcam-path', type=str, required=True,
                     help='Path to the yaml-file containing the camera rigid body transformation matrix')
+    parser.add_argument('--Cam-upsidedown', action='store_true', help='Use if the camera was upside-down during the data acquisition process')
+    parser.add_argument('--camera-yaml', type=str, help='Path to the yaml-file containing the camera intrinsics')
     opt = parser.parse_args()
     print(opt)
 

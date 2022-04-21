@@ -1,4 +1,5 @@
 import os
+from re import I
 import sys
 import cv2
 import shutil
@@ -187,11 +188,11 @@ def load_mapping(fpath):
 def load_camera_intrinsics(yaml_fpath):
     with open(yaml_fpath) as f:
         camera_intrinsics = yaml.load(f, Loader=yaml.FullLoader)
-        camera_matrix = np.array(camera_intrinsics['camera_matrix']['data']).reshape(3, 3)
+        intrinsic_matrix = np.array(camera_intrinsics['camera_matrix']['data']).reshape(3, 3)
         dist_coefficients = np.array([camera_intrinsics["distortion_coefficients"]["data"]])
         img_size = (camera_intrinsics["image_width"], camera_intrinsics["image_height"])
 
-    return {'camera_matrix': camera_matrix, 'dist_coefficients': dist_coefficients, 'img_size': img_size}
+    return {'intrinsic_matrix': intrinsic_matrix, 'dist_coefficients': dist_coefficients, 'img_size': img_size}
 
 def load_B_C(path):
     # loads rigid body camera frame (B->C) transformation matrix
@@ -220,8 +221,8 @@ def extract_rosbag_images(image_bag_fpath: str, image_bag_topic: str, output_pat
     
     if undistort:
         mapx, mapy = \
-            cv2.initUndistortRectifyMap(intrinsics['camera_matrix'], intrinsics['dist_coefficients'], None, 
-                                        intrinsics['camera_matrix'], intrinsics['img_size'], 5)
+            cv2.initUndistortRectifyMap(intrinsics['intrinsic_matrix'], intrinsics['dist_coefficients'], None, 
+                                        intrinsics['intrinsic_matrix'], intrinsics['img_size'], 5)
     
     bag = rosbag.Bag(image_bag_fpath, 'r')
     bridge = CvBridge()
@@ -361,8 +362,23 @@ def calc_camera_frame(B_C_fpath: str, R_wb, t_wb):
 
     return R_wc, t_wc
 
+def rotate_orientation_upside_down(R_wc):
+    R_UD = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]]) # rotation 'UpsideDown' about 180 degrees due to camera orientation rotated during data acquisition 
+    return R_wc @ R_UD
 
-def perform_custom_camera_frame_rotations(R_wc):
+def perform_photogrammetric_camera_frame_rotations(R_wc, Cam_upsidedown: bool):
     R_UD = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]]) # rotation 'UpsideDown' about 180 degrees due to camera orientation rotated during data acquisition
     R_YZ = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]]) # rotation around x-axis to convert from CV to photogrammetric system (z-axis towards camera frame origin)
-    return R_wc @ R_UD @ R_YZ
+    return R_wc @ R_UD @ R_YZ if Cam_upsidedown else R_wc @ R_YZ
+
+def get_perfect_obj_pos_proj(extrinsic_mat, intrinsic_mat, obj_pos):
+    p = intrinsic_mat @ extrinsic_mat @ obj_pos
+    # u = p[0, :] / p[2, :]
+    # v = p[1, :] / p[2, :]
+    
+    x = p[0, 0]
+    y = p[1, 0]
+    z = p[2, 0]
+    u = x / z
+    v = y / z
+    return (u, v)
