@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 
 from lib.write_rsg_files import write_cl, write_enh, write_txt 
-from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, quat2rot, get_image_annotation_object_center, calc_camera_frame, perform_photogrammetric_camera_frame_rotations, get_perfect_obj_pos_proj, rotate_orientation_upside_down, load_camera_intrinsics
+from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, quat2rot, get_image_annotation_object_center, calc_camera_frame, perform_photogrammetric_camera_frame_rotations, get_perfect_obj_pos_proj, rotate_orientation_upside_down, load_camera_intrinsics, get_projected_point
 
 '''
     :Takes COCO data format annotation json file from recordings specified by `--recordings-path` and `--annotation-json-name`
@@ -43,7 +43,6 @@ def transform():
     if not len(recording_paths):
         print('Error: No recording directories found (%s)' % recordings_path)
         sys.exit(1)
-
 
     for recording_path in recording_paths: 
         # init (file)paths for current recording
@@ -107,8 +106,10 @@ def transform():
 
                 # CL: create ground truth object projection
                 # Calculate extrinsics matrix & make homogeneous
-                R_wcextr = rotate_orientation_upside_down(R_wc) if Cam_upsidedown else R_wc
-                extrinsic_mat = np.hstack((R_wcextr.T, -np.matmul(R_wcextr.T, t_wc)))
+                #R_wcextr = rotate_orientation_upside_down(R_wc) if Cam_upsidedown else R_wc
+                # TODO: using the upper line (upside down correction of camera pose) to compose extrinsic mat does not yield the correct projection! (wrong translation t_wc)
+                # if using this in the future, delete if condition line 127;
+                extrinsic_mat = np.hstack((R_wc.T, -np.matmul(R_wc.T, t_wc)))
                 extrinsic_mat = np.vstack((extrinsic_mat, np.array([0, 0, 0, 1])))
     
                 # load intrinsics & make homogeneous
@@ -121,6 +122,13 @@ def transform():
 
                 # project object pos for ground truth 2D C/L projection
                 perfect_obj_pos_proj_2D = get_perfect_obj_pos_proj(extrinsic_mat, intrinsic_mat, obj_pos)
+
+                if Cam_upsidedown: # need to rotate on 2D image level due to wrong translation after 3D rotation; see line 110
+                    image_w = int(image['width'])
+                    image_h = int(image['height'])
+                    xyr = get_projected_point(o=(image_w / 2, image_h / 2), xy=perfect_obj_pos_proj_2D, degree=180)
+                    perfect_obj_pos_proj_2D = (round(xyr[0]), round(xyr[1])) # round to nearest integer
+
                 cl_perfect_obj_pos_proj_dicts.append({'category_id': category_id, 'object_center_2D': perfect_obj_pos_proj_2D, 'image_fname': image_fname}) 
 
                 # TXT: write camera frame position and orientation, conform to the photogrammetric system 
@@ -137,7 +145,7 @@ def transform():
             if category_id not in category_ids: # len(objects) times (number of objects/categories from the recording)
                 enh_object_positions_3D_dict[category_id] = annotation['object_pose']['position']
                 category_ids.append(annotation['category_id'])
-
+        
         # write 2D object annotator annotation center coordinates (.CL columnt/line file)
         init_output_path(save_path + '/cl_ann')
         write_cl(save_path + '/cl_ann', cl_object_center_2D_dicts)

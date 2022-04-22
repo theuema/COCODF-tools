@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: plot-gtruth-proj-coco-multrec",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/plot_gtruth-proj_coco_multrec.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--recordings-path",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
+            ]
+        },
+        {
             "name": "Python: combine-multirec-for-RSG-CPOSs-onefile",
             "type": "python",
             "request": "launch",

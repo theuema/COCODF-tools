@@ -118,6 +118,10 @@ def get_image_paths(coco_dir):
     # return a list of all image paths in a given directory
     return sorted(glob(os.path.join(coco_dir, 'images/*.png')))
 
+def get_detected_image_paths(coco_dir):
+    # return a list of all image paths in a given directory
+    return sorted(glob(os.path.join(coco_dir, 'detected_images/*.png')))
+
 def get_distorted_image_paths(coco_dir):
     # return a list of all distorted image paths in a given directory
     return sorted(glob(os.path.join(coco_dir, 'distorted_images/*.png')))
@@ -216,6 +220,12 @@ def get_id_img_annotations(img_id: int, coco_annotation_data):
     return [annotation for annotation in coco_annotation_data['annotations'] 
             if annotation['image_id'] == img_id]
 
+def get_id_cl_path(img_id: int, all_cl_fpaths: list):
+    # get cl path from image ID (img_id must be checked previously for out of bounds)
+    # TODO: works only if 'image_id' corresponds to a sorted list of cl paths (see: get_cl_fpaths(dir))
+    # add compatibility for unsorted filenames
+    return all_cl_fpaths[img_id - 1] # Index correction: cl IDs start with 1 that corresponds to index 0
+
 def extract_rosbag_images(image_bag_fpath: str, image_bag_topic: str, output_path: str, undistort: bool, intrinsics: dict):
     # extract images from rosbag/topic, save to a given path and optionally undistort the image given camera intrinsics
     
@@ -236,7 +246,7 @@ def extract_rosbag_images(image_bag_fpath: str, image_bag_topic: str, output_pat
         if undistort:
             img = cv2.remap(img, mapx, mapy, cv2.INTER_LINEAR)
         
-        save_path = os.path.join(output_path, '%06i.png' % (i+1))
+        save_path = os.path.join(output_path, '%08i.png' % (i+1))
         cv2.imwrite(save_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR),
                     [cv2.IMWRITE_PNG_COMPRESSION, lossless_compression_factor])
     
