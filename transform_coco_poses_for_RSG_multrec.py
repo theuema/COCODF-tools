@@ -106,8 +106,9 @@ def transform():
 
                 # CL: create ground truth object projection
                 # Calculate extrinsics matrix & make homogeneous
-                #R_wcextr = rotate_orientation_upside_down(R_wc) if Cam_upsidedown else R_wc
-                # TODO: using the upper line (upside down correction of camera pose) to compose extrinsic mat does not yield the correct projection! (wrong translation t_wc)
+                # R_wcextr = rotate_orientation_upside_down(R_wc) if Cam_upsidedown else R_wc
+                # TODO: using the upper line (upside down correction of camera pose) to compose extrinsic mat does not yield the correct projection! 
+                # wrong extrinsic calibration transformation (B_C) expected in function calc_camera_frame
                 # if using this in the future, delete if condition line 127;
                 extrinsic_mat = np.hstack((R_wc.T, -np.matmul(R_wc.T, t_wc)))
                 extrinsic_mat = np.vstack((extrinsic_mat, np.array([0, 0, 0, 1])))
@@ -123,7 +124,7 @@ def transform():
                 # project object pos for ground truth 2D C/L projection
                 perfect_obj_pos_proj_2D = get_perfect_obj_pos_proj(extrinsic_mat, intrinsic_mat, obj_pos)
 
-                if Cam_upsidedown: # need to rotate on 2D image level due to wrong translation after 3D rotation; see line 110
+                if Cam_upsidedown: # need to rotate on 2D image level due to wrong orientation after 3D rotation; see line 110
                     image_w = int(image['width'])
                     image_h = int(image['height'])
                     xyr = get_projected_point(o=(image_w / 2, image_h / 2), xy=perfect_obj_pos_proj_2D, degree=180)

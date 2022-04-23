@@ -70,7 +70,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_nonrot_minimal",
                 "--mapping-path",
                 "labels/aau_coco.mapping",
                 "--deviate",
@@ -174,13 +174,13 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_processed_apr22",
+                "../OptiTrack_recordings_jul21_processed_apr22_nonrot",
                 "--image-bag-name",
                 "camera_animals_full_closest_sync.bag",
                 "--image-bag-topic",
                 "/synchronizer/rgb_undistort",
                 "--output-path",
-                "../OptiTrack_recordings_jul21_processed_apr22",
+                "../OptiTrack_recordings_jul21_processed_apr22_nonrot",
                 "--camera-yaml",
                 "intrinsics/calib_file_fullres_drop.yaml",
             ]
@@ -214,6 +214,20 @@
             ]
         },
         {
+            "name": "Python: copy-minimal-multrec",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/copy_coco_dataset_minimal_multrec.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--recordings-path",
+                "../OptiTrack_recordings_jul21_processed_apr22_nonrot",
+                "--output-path",
+                "../OptiTrack_recordings_jul21_processed_apr22_nonrot_minimal",
+                "--unique-img-id"
+            ]
+        },
+        {
             "name": "Python: plot-annotations",
             "type": "python",
             "request": "launch",
@@ -243,7 +257,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_nonrot_minimal",
                 "--annotator",
                 "OptiTrack",
                 "--annotator-labels-path",

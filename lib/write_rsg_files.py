@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from lib.base import get_image_annotation_object_center, quat2rot
 
 def write_cl(save_path: str, object_center_2D_dicts: list): # save_path must be initialized
     # takes a list of object center dictionaries ({'category_id': category_id, 'object_center_2D': (c, l), 'image_fname': image_fname})
@@ -65,6 +64,6 @@ def write_txt(save_path: str, txt_C_camera_pose_dict: dict):
             for row in R_wc:
                 rounded_row = [round(x, 4) for x in row]
                 for rm_element in rounded_row:
-                    f.write('%.4f; ' % rm_element)
+                    f.write('%.10f; ' % rm_element)
             # write image_fname
             f.write(txt_C_camera_pose_dict[image_id]['image_fname'] + '\n')
