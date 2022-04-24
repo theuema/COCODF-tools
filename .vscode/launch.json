@@ -387,7 +387,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--weights",
                 "ScaledYOLOv4/weights/yolov4-p7.pt",
                 "--image-ids",
@@ -397,6 +397,7 @@
                 "--augment",
                 "--show-yolo",
                 "--inside-label",
+                "--plot-detection-centers",
                 "--save-coco",
                 "--class",
                 "17",
@@ -408,7 +409,7 @@
                 "32",
                 "47",
                 "49",
-                "77"
+                "77",
             ]
         },
         {

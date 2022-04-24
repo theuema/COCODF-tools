@@ -6,7 +6,7 @@ from ScaledYOLOv4.utils.general import non_max_suppression, scale_coords, xyxy2x
 from ScaledYOLOv4.utils.torch_utils import time_synchronized
 from ScaledYOLOv4.utils.datasets import LoadImages
 
-from lib.base import plot_one_bbox, xyxy2coco
+from lib.base import plot_one_bbox, xyxy2coco, get_bbox_object_center
 
 '''
     :Runs object detection on image and plots resulting bounding boxes to image: specified by `id_img_path` and saves the result to `output_path`
@@ -16,8 +16,8 @@ from lib.base import plot_one_bbox, xyxy2coco
 '''
 def scaledyolov4_detect(id_img_path, img, model, names, colors, device, half, save_txt, opt, output_path=None, 
                             ret_data: bool=False, show: bool=False):
-    save_txt, img_size, inside_label = \
-        opt.save_txt, opt.img_size, opt.inside_label
+    save_txt, img_size, inside_label, plot_detection_centers = \
+        opt.save_txt, opt.img_size, opt.inside_label, opt.plot_detection_centers
     
     if output_path is None and show is False:
         return
@@ -80,6 +80,11 @@ def scaledyolov4_detect(id_img_path, img, model, names, colors, device, half, sa
                             plot_one_bbox(xyxy, im0, label_inside_pos=inside_label, color=colors[int(cls)], label=label, line_thickness=1, annotator='yolo')
                         else:
                             plot_one_bbox(xyxy, im0, label_inside_pos=inside_label, color=colors[int(cls)], label=label, line_thickness=1)
+
+                        if plot_detection_centers:
+                            bbox = xyxy2coco(xyxy)
+                            center_point = get_bbox_object_center(bbox)
+                            cv2.circle(im0, (round(center_point[0]), round(center_point[1])), radius=8, color=colors[int(cls)], thickness=-1)
 
                         if ret_data:
                             # save category

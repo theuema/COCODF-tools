@@ -349,7 +349,7 @@ def add_coco_style_categories(coco_annotation_data: dict):
     return coco_annotation_data
 
 
-def get_image_annotation_object_center(bbox: list): # from [x2, y2, w, h] to (cx, cy)
+def get_bbox_object_center(bbox: list): # from [x2, y2, w, h] to (cx, cy)
     # returns the center point of the object from the associated bounding box (image coordinates top left 0/0)
     return (bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2)
 

@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 
 from lib.write_rsg_files import write_cl, write_enh, write_txt 
-from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, quat2rot, get_image_annotation_object_center, calc_camera_frame, perform_photogrammetric_camera_frame_rotations, get_perfect_obj_pos_proj, rotate_orientation_upside_down, load_camera_intrinsics, get_projected_point
+from lib.base import init_output_path, load_json, get_img_ids_from_arguments, get_subdir_paths, quat2rot, get_bbox_object_center, calc_camera_frame, perform_photogrammetric_camera_frame_rotations, get_perfect_obj_pos_proj, rotate_orientation_upside_down, load_camera_intrinsics, get_projected_point
 
 '''
     :Takes COCO data format annotation json file from recordings specified by `--recordings-path` and `--annotation-json-name`
@@ -93,7 +93,7 @@ def transform():
 
             if image_id in image_ids: # len(annotations) times each image
                 # CL: create image specific data - annotator 2D object center-, or better bounding box center coordinates
-                object_center_2D = get_image_annotation_object_center(annotation['bbox'])
+                object_center_2D = get_bbox_object_center(annotation['bbox'])
                 cl_object_center_2D_dicts.append({'category_id': category_id, 'object_center_2D': object_center_2D, 'image_fname': image_fname}) 
 
                 # calculate camera position & rotation in camera frame
@@ -175,7 +175,7 @@ def transform():
 
             # CL: create image specific data - object-detector annotation center coordinates
             if image_id in image_ids: # len(annotations) times each image 
-                object_center_2D = get_image_annotation_object_center(annotation['bbox'])
+                object_center_2D = get_bbox_object_center(annotation['bbox'])
                 cl_object_center_2D_dicts.append({'category_id': category_id, 'object_center_2D': object_center_2D, 'image_fname': image_fname}) 
 
         # write 2D object object detection annotation center coordinates (.CL columnt/line file)

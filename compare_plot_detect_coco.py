@@ -264,6 +264,7 @@ if __name__ == '__main__':
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--inside-label', action='store_true', help='place yolo label inside the bounding box')
+    parser.add_argument('--plot-detection-centers', action='store_true', help='additionally plot the center points of the detected bounding boxes')
     parser.add_argument('--update', action='store_true', help='update all models')
     opt = parser.parse_args()
     print(opt)
