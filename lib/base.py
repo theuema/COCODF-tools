@@ -11,6 +11,7 @@ import yaml
 import rosbag
 from cv_bridge import CvBridge
 from copy import deepcopy
+from pathlib import Path
 
 from glob import glob
 
@@ -129,6 +130,14 @@ def get_distorted_image_paths(coco_dir):
 def get_subdir_paths(dir):
     # return a list of all subdir paths of a given directory, but exclude folders starting with '_'
     return sorted(glob(os.path.join(dir, '[!_]*/')))
+
+def sorter(dir):
+    # Get an item from the list (one-by-one) and return a sorting score for that item.
+    return int(str(Path(dir).stem))
+
+def get_subdir_paths_sorted_recordings(dir):
+    # return a list of all subdir paths of a given directory, but exclude folders starting with '_'
+    return sorted(glob(os.path.join(dir, '[!_]*/')), key=sorter)
 
 def get_annoation_data_fpath(coco_dir):
     # return file path to coco_annotation_data (annotations/data.json)

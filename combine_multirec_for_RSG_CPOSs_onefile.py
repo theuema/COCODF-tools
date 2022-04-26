@@ -4,7 +4,7 @@ import os
 from shutil import copyfile
 from pathlib import Path
 
-from lib.base import get_subdir_paths, get_cl_fpaths, init_output_path
+from lib.base import get_cl_fpaths, init_output_path, get_subdir_paths_sorted_recordings
 
 def combine():
     recordings_path, output_path, combine_cl_ann, combine_cl_det, combine_cl_gtruth = opt.recordings_path, opt.output_path, opt.cl_ann, opt.cl_det, opt.cl_gtruth
@@ -17,7 +17,7 @@ def combine():
             sys.exit(1)
 
     # get all recording paths
-    recording_paths = get_subdir_paths(recordings_path)
+    recording_paths = get_subdir_paths_sorted_recordings(recordings_path)
     if not len(recording_paths):
         print('Error: No recording directories found (%s)' % recordings_path)
         sys.exit(1)
@@ -61,7 +61,8 @@ def combine():
                 os.makedirs(save_path)
             # combine name & copy
             for cl_ann_fpath in cl_ann_fpaths:
-                save_fpath = os.path.join(save_path, 'REC' + str(Path(recording_path).stem) + '_' + str(Path(cl_ann_fpath).name))
+                REC_ID = '%03i' % (int(str(Path(recording_path).stem)))
+                save_fpath = os.path.join(save_path, 'REC' + REC_ID + '_' + str(Path(cl_ann_fpath).name))
                 copyfile(cl_ann_fpath, save_fpath)
 
         if combine_cl_det:
@@ -76,7 +77,8 @@ def combine():
                 os.makedirs(save_path)
             # combine name & copy
             for cl_det_fpath in cl_det_fpaths:
-                save_fpath = os.path.join(save_path, 'REC' + str(Path(recording_path).stem) + '_' + str(Path(cl_det_fpath).name))
+                REC_ID = '%03i' % (int(str(Path(recording_path).stem)))
+                save_fpath = os.path.join(save_path, 'REC' + REC_ID + '_' + str(Path(cl_det_fpath).name))
                 copyfile(cl_det_fpath, save_fpath)
 
         if combine_cl_gtruth:
@@ -91,12 +93,13 @@ def combine():
                 os.makedirs(save_path)
             # combine name & copy
             for cl_gtruth_fpath in cl_gtruth_fpaths:
-                save_fpath = os.path.join(save_path, 'REC' + str(Path(recording_path).stem) + '_' + str(Path(cl_gtruth_fpath).name))
+                REC_ID = '%03i' % (int(str(Path(recording_path).stem)))
+                save_fpath = os.path.join(save_path, 'REC' + REC_ID + '_' + str(Path(cl_gtruth_fpath).name))
                 copyfile(cl_gtruth_fpath, save_fpath)
 
 
         # copy .txt of recordings into custom one file for the case of only being able to use one image per recording (AAU Musisano project OptiTrack_recordings_jul21*)
-        save_fpath = os.path.join(output_path, 'custom' + '_' + str(Path(txt_fpath).name))
+        save_fpath = os.path.join(output_path, str(Path(txt_fpath).name))
         f = open(txt_fpath, 'r')
         pose = f.readlines()[1].replace(" ", "").rstrip().split(';')
 
@@ -111,7 +114,8 @@ def combine():
             f.write('%06i.png' % (int(str(Path(recording_path).stem))) + '\n')
         
         # copy .enh files
-        save_fpath = os.path.join(output_path, 'REC' + str(Path(recording_path).stem) + '_' + str(Path(enh_fpath).name))
+        REC_ID = '%03i' % (int(str(Path(recording_path).stem)))
+        save_fpath = os.path.join(output_path, 'REC' + REC_ID + '_' + str(Path(enh_fpath).name))
         copyfile(enh_fpath, save_fpath)
     
     print('Done combining multiple recordings for RSG (%s)' % output_path)
