@@ -57,7 +57,7 @@ def combine():
                 print('Error: No .cl files found (%s)' % cl_ann_path)
                 sys.exit(1)
             # init save_path
-            save_path = os.path.join(output_path, 'cl_ann_multirec')
+            save_path = os.path.join(output_path, 'cl_ann_multrec')
             if not os.path.exists(save_path):
                 os.makedirs(save_path)
             # combine name & copy
@@ -72,7 +72,7 @@ def combine():
                 print('Error: No .cl files found (%s)' % cl_det_path)
                 sys.exit(1)
             # init save_path
-            save_path = os.path.join(output_path, 'cl_det_multirec') 
+            save_path = os.path.join(output_path, 'cl_det_multrec') 
             if not os.path.exists(save_path):
                 os.makedirs(save_path)
             # combine name & copy
@@ -87,7 +87,7 @@ def combine():
                 print('Error: No .cl files found (%s)' % cl_det_path)
                 sys.exit(1)
             # init save_path
-            save_path = os.path.join(output_path, 'cl_gtruth_multirec') 
+            save_path = os.path.join(output_path, 'cl_gtruth_multrec') 
             if not os.path.exists(save_path):
                 os.makedirs(save_path)
             # combine name & copy

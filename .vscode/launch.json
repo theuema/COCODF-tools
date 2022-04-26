@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: _temp-plot-manual-gtruth-to-multrec",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/_temp_plot_manual_gtruth_to_multrec.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--recordings-path",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
+                "--cl-files-path",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal/_rsg_combined/cl_gtruth_multrec"
+            ]
+        },
+        {
             "name": "Python: plot-gtruth-proj-coco-multrec",
             "type": "python",
             "request": "launch",
@@ -70,7 +83,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_processed_apr22_nonrot_minimal",
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--mapping-path",
                 "labels/aau_coco.mapping",
                 "--deviate",
@@ -174,13 +187,13 @@
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
-                "../OptiTrack_recordings_jul21_processed_apr22_nonrot",
+                "../OptiTrack_recordings_jul21_processed_apr22",
                 "--image-bag-name",
                 "camera_animals_full_closest_sync.bag",
                 "--image-bag-topic",
                 "/synchronizer/rgb_undistort",
                 "--output-path",
-                "../OptiTrack_recordings_jul21_processed_apr22_nonrot",
+                "../OptiTrack_recordings_jul21_processed_apr22",
                 "--camera-yaml",
                 "intrinsics/calib_file_fullres_drop.yaml",
             ]
@@ -330,6 +343,7 @@
                 "--augment",
                 "--show-yolo",
                 "--inside-label",
+                "--plot-detection-centers",
                 "--class",
                 "17",
                 "19",
@@ -338,9 +352,7 @@
                 "22",
                 "23",
                 "32",
-                "47",
-                "49",
-                "77"
+                "49"
             ]
         },
         {
