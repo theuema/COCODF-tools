@@ -37,7 +37,7 @@ def plot():
             print('Error: No images or ground truth projections to process found in coco path (%s)' % coco_path)
             return
 
-        images_output_path = os.path.join(coco_path, 'gtruth_proj_images')
+        images_output_path = os.path.join(coco_path, 'proj_gtruth_images')
         init_output_path(images_output_path)
 
         # plot ground truth projections to all images of recording `i`

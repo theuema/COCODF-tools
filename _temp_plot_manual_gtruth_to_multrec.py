@@ -44,7 +44,7 @@ def plot():
         coco_path = os.path.join(recording_path, 'output')
         all_detected_img_paths = get_detected_image_paths(coco_path)
 
-        images_output_path = os.path.join(coco_path, 'gtruth_manual_images')
+        images_output_path = os.path.join(coco_path, 'manual_gtruth_images')
         init_output_path(images_output_path)
 
         # plot ground truth projections to all images of recording `i`

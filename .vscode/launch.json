@@ -14,7 +14,7 @@
                 "--recordings-path",
                 "../OptiTrack_recordings_jul21_processed_apr22_minimal",
                 "--cl-files-path",
-                "../OptiTrack_recordings_jul21_processed_apr22_minimal/_rsg_combined/cl_gtruth_multrec"
+                "../OptiTrack_recordings_jul21_processed_apr22_minimal/_rsg_combined/cl_manual_gtruth_multrec"
             ]
         },
         {
@@ -29,10 +29,10 @@
             ]
         },
         {
-            "name": "Python: combine-multirec-for-RSG-CPOSs-onefile",
+            "name": "Python: combine-multrec-for-RSG-CPOSs-onefile",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/combine_multirec_for_RSG_CPOSs_onefile.py",
+            "program": "${workspaceFolder}/combine_multrec_for_RSG_CPOSs_onefile.py",
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
@@ -45,10 +45,10 @@
             ]
         },
         {
-            "name": "Python: combine-multirec-for-RSG",
+            "name": "Python: combine-multrec-for-RSG",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/combine_multirec_for_RSG.py",
+            "program": "${workspaceFolder}/combine_multrec_for_RSG.py",
             "console": "integratedTerminal",
             "args": [
                 "--recordings-path",
